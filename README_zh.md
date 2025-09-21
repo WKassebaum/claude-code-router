@@ -1,4 +1,10 @@
-# Claude Code Router
+![](blog/images/claude-code-router-img.png)
+
+[![](https://img.shields.io/badge/%F0%9F%87%AC%F0%9F%87%A7-English-000aff?style=flat)](README.md)
+[![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?&logo=discord&logoColor=white)](https://discord.gg/rdftVMaUcS)
+[![](https://img.shields.io/github/license/musistudio/claude-code-router)](https://github.com/musistudio/claude-code-router/blob/main/LICENSE)
+
+<hr>
 
 我正在为该项目寻求资金支持，以更好地维持其发展。如果您有任何想法，请随时与我联系: [m@musiiot.top](mailto:m@musiiot.top)
 
@@ -9,6 +15,9 @@
 > 如果你想获得更好的体验，可以尝试[iFlow CLI](https://cli.iflow.cn)。      
 
 ![](blog/images/claude-code.png)
+
+![](blog/images/roadmap.svg)
+
 
 ## ✨ 功能
 
@@ -541,6 +550,9 @@ jobs:
 - @\*更
 - @\*.
 - @F\*t
+- @\*政
+- @\*铭
+- @\*叶
 
 （如果您的名字被屏蔽，请通过我的主页电子邮件与我联系，以便使用您的 GitHub 用户名进行更新。）
 
