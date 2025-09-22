@@ -8,7 +8,27 @@ export const apiKeyAuth =
       return done();
     }
 
+    // Sensitive endpoints that require authentication
+    const sensitiveEndpoints = [
+      '/api/usage/summary',
+      '/api/usage/details',
+      '/api/usage/export',
+      '/api/costs/models',
+      '/api/statusline/usage'
+    ];
+
+    const isSensitiveEndpoint = sensitiveEndpoints.some(endpoint =>
+      req.url.startsWith(endpoint)
+    );
+
     const apiKey = config.APIKEY;
+
+    // Check if this is a sensitive endpoint that always requires auth
+    if (isSensitiveEndpoint && !apiKey) {
+      reply.status(401).send("Authentication required for this endpoint");
+      return;
+    }
+
     if (!apiKey) {
       // If no API key is set, enable CORS for local
       const allowedOrigins = [
@@ -27,8 +47,8 @@ export const apiKeyAuth =
     const isConfigEndpoint = req.url.startsWith("/api/config");
     const isRestartEndpoint = req.url === "/api/restart";
 
-    // For config endpoints and restart endpoint, we implement granular access control
-    if (isConfigEndpoint || isRestartEndpoint) {
+    // For config endpoints, restart endpoint, and sensitive usage endpoints, we implement granular access control
+    if (isConfigEndpoint || isRestartEndpoint || isSensitiveEndpoint) {
       // Attach access level to request for later use
       (req as any).accessLevel = "restricted";
 

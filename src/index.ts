@@ -14,7 +14,7 @@ import {
 import { CONFIG_FILE } from "./constants";
 import { createStream } from 'rotating-file-stream';
 import { HOME_DIR } from "./constants";
-import { sessionUsageCache } from "./utils/cache";
+import { sessionUsageCache, normalizeUsage } from "./utils/cache";
 import {SSEParserTransform} from "./utils/SSEParser.transform";
 import {SSESerializerTransform} from "./utils/SSESerializer.transform";
 import {rewriteStream} from "./utils/rewriteStream";
@@ -22,6 +22,8 @@ import JSON5 from "json5";
 import { IAgent } from "./agents/type";
 import agentsManager from "./agents";
 import { EventEmitter } from "node:events";
+import { usageTracker } from "./utils/database";
+import { v4 as uuidv4 } from 'uuid';
 
 const event = new EventEmitter()
 
@@ -148,6 +150,10 @@ async function run(options: RunOptions = {}) {
   });
   // Add async preHandler hook for authentication
   server.addHook("preHandler", async (req, reply) => {
+    // Track request start time for usage tracking
+    (req as any).requestStart = Date.now();
+    (req as any).requestId = uuidv4();
+
     return new Promise((resolve, reject) => {
       const done = (err?: Error) => {
         if (err) reject(err);
@@ -341,7 +347,7 @@ async function run(options: RunOptions = {}) {
               const str = dataStr.slice(27);
               try {
                 const message = JSON.parse(str);
-                sessionUsageCache.put(req.sessionId, message.usage);
+                sessionUsageCache.put(req.sessionId, normalizeUsage(message.usage));
               } catch {}
             }
           } catch (readError: any) {
@@ -357,7 +363,7 @@ async function run(options: RunOptions = {}) {
         read(clonedStream);
         return done(null, originalStream)
       }
-      sessionUsageCache.put(req.sessionId, payload.usage);
+      sessionUsageCache.put(req.sessionId, normalizeUsage(payload.usage));
       if (typeof payload ==='object') {
         if (payload.error) {
           return done(payload.error, null)
@@ -372,6 +378,33 @@ async function run(options: RunOptions = {}) {
     done(null, payload)
   });
   server.addHook("onSend", async (req, reply, payload) => {
+    // Track usage if we have the data
+    const requestStart = (req as any).requestStart || Date.now();
+    const responseTime = Date.now() - requestStart;
+
+    // Extract provider and model from request
+    if (req.body?.model) {
+      const [provider, model] = req.body.model.split(',');
+      const sessionId = (req as any).sessionId || 'unknown';
+
+      // Get usage from cache
+      const usage = sessionUsageCache.get(sessionId);
+
+      if (usage) {
+        // Record usage to database
+        usageTracker.recordUsage({
+          sessionId,
+          requestId: (req as any).requestId || uuidv4(),
+          provider,
+          model,
+          inputTokens: usage.input_tokens || 0,
+          outputTokens: usage.output_tokens || 0,
+          responseTime,
+          status: 'success'
+        });
+      }
+    }
+
     event.emit('onSend', req, reply, payload);
     return payload;
   })

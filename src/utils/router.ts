@@ -6,6 +6,7 @@ import {
 import { get_encoding } from "tiktoken";
 import { sessionUsageCache, Usage } from "./cache";
 import { readFile } from 'fs/promises'
+import { filterAndSimplifyTools, needsToolFiltering } from "./toolSchemaSimplifier";
 
 const enc = get_encoding("cl100k_base");
 
@@ -69,6 +70,21 @@ const getUseModel = async (
   config: any,
   lastUsage?: Usage | undefined
 ) => {
+  // Handle CCR router models
+  if (req.body.model.startsWith("ccr-")) {
+    const routerType = req.body.model.replace("ccr-", "").replace("-", "");
+    if (config.Router && config.Router[routerType]) {
+      req.log.info(`Using CCR router model: ${req.body.model} -> ${config.Router[routerType]}`);
+      return config.Router[routerType];
+    } else if (routerType === "default" && config.Router?.default) {
+      return config.Router.default;
+    } else if (routerType === "longcontext" && config.Router?.longContext) {
+      return config.Router.longContext;
+    } else if (routerType === "websearch" && config.Router?.webSearch) {
+      return config.Router.webSearch;
+    }
+  }
+
   if (req.body.model.includes(",")) {
     const [provider, model] = req.body.model.split(",");
     const finalProvider = config.Providers.find(
@@ -176,6 +192,11 @@ export const router = async (req: any, _res: any, context: any) => {
       model = await getUseModel(req, tokenCount, config, lastMessageUsage);
     }
     req.body.model = model;
+
+    // Apply tool filtering and simplification based on provider limitations
+    if (needsToolFiltering(model) && req.body.tools) {
+      req.body.tools = filterAndSimplifyTools(req.body.tools, model, req);
+    }
   } catch (error: any) {
     req.log.error(`Error in router middleware: ${error.message}`);
     req.body.model = config.Router!.default;
