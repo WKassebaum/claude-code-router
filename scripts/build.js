@@ -9,11 +9,18 @@ console.log('Building Claude Code Router...');
 try {
   // Build the main CLI application
   console.log('Building CLI application...');
-  execSync('esbuild src/cli.ts --bundle --platform=node --outfile=dist/cli.js', { stdio: 'inherit' });
+  execSync('esbuild src/cli.ts --bundle --platform=node --outfile=dist/cli.js --external:better-sqlite3', { stdio: 'inherit' });
   
   // Copy the tiktoken WASM file
   console.log('Copying tiktoken WASM file...');
   execSync('shx cp node_modules/tiktoken/tiktoken_bg.wasm dist/tiktoken_bg.wasm', { stdio: 'inherit' });
+
+  // Copy better-sqlite3 module and binary
+  console.log('Copying better-sqlite3 module...');
+  execSync('shx mkdir -p dist/node_modules/better-sqlite3', { stdio: 'inherit' });
+  execSync('shx cp -r node_modules/better-sqlite3/lib dist/node_modules/better-sqlite3/', { stdio: 'inherit' });
+  execSync('shx cp -r node_modules/better-sqlite3/build dist/node_modules/better-sqlite3/', { stdio: 'inherit' });
+  execSync('shx cp node_modules/better-sqlite3/package.json dist/node_modules/better-sqlite3/', { stdio: 'inherit' });
   
   // Build the UI
   console.log('Building UI...');
