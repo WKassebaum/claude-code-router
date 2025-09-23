@@ -9,16 +9,64 @@
 class GrokAutoRouterTransformer {
   constructor(options = {}) {
     this.name = 'grok-auto-router';
-    this.options = {
+    this.options = this.validateAndNormalizeOptions(options);
+
+    // Model capability matrix
+    this.modelCapabilities = this.initializeModelCapabilities();
+  }
+
+  /**
+   * Validate and normalize configuration options
+   */
+  validateAndNormalizeOptions(options) {
+    const validated = {
+      enabled: options.enabled !== false, // Default enabled
       enableAutoRouting: options.enableAutoRouting !== false,
       enableComplexityAnalysis: options.enableComplexityAnalysis !== false,
       enablePerformanceOptimization: options.enablePerformanceOptimization !== false,
-      routingStrategy: options.routingStrategy || 'balanced', // balanced, speed, quality
+      routingStrategy: this.validateRoutingStrategy(options.routingStrategy),
       ...options
     };
 
-    // Model capability matrix
-    this.modelCapabilities = {
+    // Log configuration warnings if any
+    this.logConfigurationWarnings(options, validated);
+
+    return validated;
+  }
+
+  /**
+   * Validate routing strategy
+   */
+  validateRoutingStrategy(strategy) {
+    const validStrategies = ['balanced', 'speed', 'quality'];
+    if (!strategy || !validStrategies.includes(strategy)) {
+      if (strategy) {
+        console.warn(`[${this.name}] Invalid routingStrategy '${strategy}', using 'balanced'`);
+      }
+      return 'balanced';
+    }
+    return strategy;
+  }
+
+  /**
+   * Log configuration warnings
+   */
+  logConfigurationWarnings(original, validated) {
+    if (original.routingStrategy && original.routingStrategy !== validated.routingStrategy) {
+      console.warn(`[${this.name}] routingStrategy adjusted from '${original.routingStrategy}' to '${validated.routingStrategy}'`);
+    }
+
+    // Warn about conflicting settings
+    if (validated.enableAutoRouting === false && validated.enableComplexityAnalysis === true) {
+      console.warn(`[${this.name}] enableComplexityAnalysis is true but enableAutoRouting is false - complexity analysis will have no effect`);
+    }
+  }
+
+  /**
+   * Initialize model capability matrix
+   */
+  initializeModelCapabilities() {
+    return {
       'grok-4-fast': {
         speed: 10,
         quality: 7,
@@ -80,6 +128,11 @@ class GrokAutoRouterTransformer {
    * Transform the outgoing request to implement auto-routing
    */
   transformRequest(request, context) {
+    // Check if transformer is enabled
+    if (!this.options.enabled) {
+      return request;
+    }
+
     // Only apply to xAI provider requests
     if (!this.isXAIProvider(context)) {
       return request;

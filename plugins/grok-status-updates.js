@@ -9,19 +9,85 @@
 class GrokStatusUpdatesTransformer {
   constructor(options = {}) {
     this.name = 'grok-status-updates';
-    this.options = {
-      statusInterval: options.statusInterval || 15000, // 15 seconds
+    this.options = this.validateAndNormalizeOptions(options);
+  }
+
+  /**
+   * Validate and normalize configuration options
+   */
+  validateAndNormalizeOptions(options) {
+    const validated = {
+      enabled: options.enabled !== false, // Default enabled
+      statusInterval: this.validateStatusInterval(options.statusInterval),
       enableProgressTracking: options.enableProgressTracking !== false,
       enableTaskBreakdown: options.enableTaskBreakdown !== false,
-      statusFormat: options.statusFormat || 'markdown',
+      statusFormat: this.validateStatusFormat(options.statusFormat),
       ...options
     };
+
+    // Log configuration warnings if any
+    this.logConfigurationWarnings(options, validated);
+
+    return validated;
+  }
+
+  /**
+   * Validate status interval
+   */
+  validateStatusInterval(interval) {
+    if (interval === undefined || interval === null) {
+      return 15000; // Default 15 seconds
+    }
+
+    const numInterval = Number(interval);
+    if (isNaN(numInterval) || numInterval < 5000) {
+      console.warn(`[${this.name}] Invalid statusInterval ${interval}, using default 15000ms`);
+      return 15000;
+    }
+
+    if (numInterval > 120000) {
+      console.warn(`[${this.name}] statusInterval ${interval}ms is very long, consider reducing it`);
+    }
+
+    return numInterval;
+  }
+
+  /**
+   * Validate status format
+   */
+  validateStatusFormat(format) {
+    const validFormats = ['markdown', 'minimal', 'verbose'];
+    if (!format || !validFormats.includes(format)) {
+      if (format) {
+        console.warn(`[${this.name}] Invalid statusFormat '${format}', using 'markdown'`);
+      }
+      return 'markdown';
+    }
+    return format;
+  }
+
+  /**
+   * Log configuration warnings
+   */
+  logConfigurationWarnings(original, validated) {
+    if (original.statusInterval && original.statusInterval !== validated.statusInterval) {
+      console.warn(`[${this.name}] statusInterval adjusted from ${original.statusInterval} to ${validated.statusInterval}`);
+    }
+
+    if (original.statusFormat && original.statusFormat !== validated.statusFormat) {
+      console.warn(`[${this.name}] statusFormat adjusted from '${original.statusFormat}' to '${validated.statusFormat}'`);
+    }
   }
 
   /**
    * Transform the outgoing request to add status update instructions
    */
   transformRequest(request, context) {
+    // Check if transformer is enabled
+    if (!this.options.enabled) {
+      return request;
+    }
+
     // Only apply to xAI Grok models
     if (!this.isGrokModel(context)) {
       return request;
@@ -63,6 +129,11 @@ class GrokStatusUpdatesTransformer {
    * Transform the response to inject status updates into streams
    */
   transformResponse(response, context) {
+    // Check if transformer is enabled
+    if (!this.options.enabled) {
+      return response;
+    }
+
     // Only apply to xAI Grok models
     if (!this.isGrokModel(context)) {
       return response;

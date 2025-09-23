@@ -9,23 +9,110 @@
 class GrokHeartbeatTransformer {
   constructor(options = {}) {
     this.name = 'grok-heartbeat';
-    this.options = {
-      heartbeatInterval: options.heartbeatInterval || 30000, // 30 seconds
-      maxOperationTime: options.maxOperationTime || 300000, // 5 minutes
-      enableKeepAlive: options.enableKeepAlive !== false,
-      enableTimeoutPrevention: options.enableTimeoutPrevention !== false,
-      heartbeatFormat: options.heartbeatFormat || 'minimal',
-      ...options
-    };
+    this.options = this.validateAndNormalizeOptions(options);
 
     this.activeOperations = new Map();
     this.heartbeatTimers = new Map();
   }
 
   /**
+   * Validate and normalize configuration options
+   */
+  validateAndNormalizeOptions(options) {
+    const validated = {
+      enabled: options.enabled !== false, // Default enabled
+      heartbeatInterval: this.validateHeartbeatInterval(options.heartbeatInterval),
+      maxOperationTime: this.validateMaxOperationTime(options.maxOperationTime),
+      enableKeepAlive: options.enableKeepAlive !== false,
+      enableTimeoutPrevention: options.enableTimeoutPrevention !== false,
+      heartbeatFormat: this.validateHeartbeatFormat(options.heartbeatFormat),
+      ...options
+    };
+
+    // Log configuration warnings if any
+    this.logConfigurationWarnings(options, validated);
+
+    return validated;
+  }
+
+  /**
+   * Validate heartbeat interval
+   */
+  validateHeartbeatInterval(interval) {
+    if (interval === undefined || interval === null) {
+      return 30000; // Default 30 seconds
+    }
+
+    const numInterval = Number(interval);
+    if (isNaN(numInterval) || numInterval < 10000) {
+      console.warn(`[${this.name}] Invalid heartbeatInterval ${interval}, using default 30000ms`);
+      return 30000;
+    }
+
+    if (numInterval > 300000) {
+      console.warn(`[${this.name}] heartbeatInterval ${interval}ms is very long, may not prevent timeouts effectively`);
+    }
+
+    return numInterval;
+  }
+
+  /**
+   * Validate max operation time
+   */
+  validateMaxOperationTime(time) {
+    if (time === undefined || time === null) {
+      return 300000; // Default 5 minutes
+    }
+
+    const numTime = Number(time);
+    if (isNaN(numTime) || numTime < 60000) {
+      console.warn(`[${this.name}] Invalid maxOperationTime ${time}, using default 300000ms`);
+      return 300000;
+    }
+
+    return numTime;
+  }
+
+  /**
+   * Validate heartbeat format
+   */
+  validateHeartbeatFormat(format) {
+    const validFormats = ['minimal', 'verbose', 'progress'];
+    if (!format || !validFormats.includes(format)) {
+      if (format) {
+        console.warn(`[${this.name}] Invalid heartbeatFormat '${format}', using 'minimal'`);
+      }
+      return 'minimal';
+    }
+    return format;
+  }
+
+  /**
+   * Log configuration warnings
+   */
+  logConfigurationWarnings(original, validated) {
+    if (original.heartbeatInterval && original.heartbeatInterval !== validated.heartbeatInterval) {
+      console.warn(`[${this.name}] heartbeatInterval adjusted from ${original.heartbeatInterval} to ${validated.heartbeatInterval}`);
+    }
+
+    if (original.maxOperationTime && original.maxOperationTime !== validated.maxOperationTime) {
+      console.warn(`[${this.name}] maxOperationTime adjusted from ${original.maxOperationTime} to ${validated.maxOperationTime}`);
+    }
+
+    if (original.heartbeatFormat && original.heartbeatFormat !== validated.heartbeatFormat) {
+      console.warn(`[${this.name}] heartbeatFormat adjusted from '${original.heartbeatFormat}' to '${validated.heartbeatFormat}'`);
+    }
+  }
+
+  /**
    * Transform the outgoing request to set up heartbeat monitoring
    */
   transformRequest(request, context) {
+    // Check if transformer is enabled
+    if (!this.options.enabled) {
+      return request;
+    }
+
     // Only apply to xAI Grok models
     if (!this.isGrokModel(context)) {
       return request;
@@ -72,6 +159,11 @@ class GrokHeartbeatTransformer {
    * Transform the response to implement heartbeat functionality
    */
   transformResponse(response, context) {
+    // Check if transformer is enabled
+    if (!this.options.enabled) {
+      return response;
+    }
+
     // Only apply to xAI Grok models
     if (!this.isGrokModel(context)) {
       return response;

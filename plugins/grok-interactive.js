@@ -9,20 +9,79 @@
 class GrokInteractiveTransformer {
   constructor(options = {}) {
     this.name = 'grok-interactive';
-    this.options = {
+    this.options = this.validateAndNormalizeOptions(options);
+  }
+
+  /**
+   * Validate and normalize configuration options
+   */
+  validateAndNormalizeOptions(options) {
+    const validated = {
+      enabled: options.enabled !== false, // Default enabled
       enableStepByStep: options.enableStepByStep !== false,
       enableQuestions: options.enableQuestions !== false,
       enableConfirmations: options.enableConfirmations !== false,
-      conversationalStyle: options.conversationalStyle || 'friendly',
-      verbosityLevel: options.verbosityLevel || 'detailed',
+      conversationalStyle: this.validateConversationalStyle(options.conversationalStyle),
+      verbosityLevel: this.validateVerbosityLevel(options.verbosityLevel),
       ...options
     };
+
+    // Log configuration warnings if any
+    this.logConfigurationWarnings(options, validated);
+
+    return validated;
+  }
+
+  /**
+   * Validate conversational style
+   */
+  validateConversationalStyle(style) {
+    const validStyles = ['friendly', 'professional', 'casual', 'formal'];
+    if (!style || !validStyles.includes(style)) {
+      if (style) {
+        console.warn(`[${this.name}] Invalid conversationalStyle '${style}', using 'friendly'`);
+      }
+      return 'friendly';
+    }
+    return style;
+  }
+
+  /**
+   * Validate verbosity level
+   */
+  validateVerbosityLevel(level) {
+    const validLevels = ['concise', 'detailed', 'verbose'];
+    if (!level || !validLevels.includes(level)) {
+      if (level) {
+        console.warn(`[${this.name}] Invalid verbosityLevel '${level}', using 'detailed'`);
+      }
+      return 'detailed';
+    }
+    return level;
+  }
+
+  /**
+   * Log configuration warnings
+   */
+  logConfigurationWarnings(original, validated) {
+    if (original.conversationalStyle && original.conversationalStyle !== validated.conversationalStyle) {
+      console.warn(`[${this.name}] conversationalStyle adjusted from '${original.conversationalStyle}' to '${validated.conversationalStyle}'`);
+    }
+
+    if (original.verbosityLevel && original.verbosityLevel !== validated.verbosityLevel) {
+      console.warn(`[${this.name}] verbosityLevel adjusted from '${original.verbosityLevel}' to '${validated.verbosityLevel}'`);
+    }
   }
 
   /**
    * Transform the outgoing request to add interactive behavior instructions
    */
   transformRequest(request, context) {
+    // Check if transformer is enabled
+    if (!this.options.enabled) {
+      return request;
+    }
+
     // Only apply to xAI Grok models
     if (!this.isGrokModel(context)) {
       return request;
@@ -68,6 +127,11 @@ class GrokInteractiveTransformer {
    * Transform the response to enhance interactivity
    */
   transformResponse(response, context) {
+    // Check if transformer is enabled
+    if (!this.options.enabled) {
+      return response;
+    }
+
     // Only apply to xAI Grok models
     if (!this.isGrokModel(context)) {
       return response;

@@ -94,7 +94,19 @@ The new XAI models are designed for agentic behavior and can work independently,
 }
 ```
 
-## Installation
+## Quick Installation
+
+**Option 1: One-command installation (Recommended)**
+```bash
+./install-grok-transformers.sh
+```
+
+**Option 2: Using the management script**
+```bash
+./scripts/grok-transformers.sh install
+```
+
+**Option 3: Manual installation**
 
 1. **Copy transformer files** to your Claude Code Router plugins directory:
    ```bash
@@ -172,6 +184,29 @@ The new XAI models are designed for agentic behavior and can work independently,
    ccr restart
    ```
 
+## Management Commands
+
+**Check installation status:**
+```bash
+./scripts/grok-transformers.sh status
+```
+
+**Enable/disable individual transformers:**
+```bash
+./scripts/grok-transformers.sh enable grok-status-updates
+./scripts/grok-transformers.sh disable grok-heartbeat
+```
+
+**Uninstall all transformers:**
+```bash
+./scripts/grok-transformers.sh uninstall
+```
+
+**Get help:**
+```bash
+./scripts/grok-transformers.sh help
+```
+
 ## Benefits
 
 - **Enhanced User Experience**: Grok models provide Claude-like interactive feedback
@@ -179,6 +214,46 @@ The new XAI models are designed for agentic behavior and can work independently,
 - **Intelligent Routing**: Automatic model selection optimizes for speed/quality balance
 - **Progress Tracking**: Real-time status updates during autonomous execution
 - **Better Integration**: Seamless Claude Code compatibility with status line support
+
+## What You'll Experience
+
+After installing these transformers, your interactions with Grok models will become much more interactive and informative:
+
+### 🔄 Status Updates
+Instead of long silent pauses, you'll see:
+```
+🔍 Analyzing codebase structure... (estimated 30 seconds)
+📝 Creating transformer files: 2/4 completed
+✅ Analysis complete. Found 5 authentication functions.
+```
+
+### 💬 Interactive Communication
+Grok will communicate more like Claude:
+```
+Let me help you implement user authentication. I'll break this down into steps:
+
+1. Setting up JWT middleware
+2. Creating login/logout endpoints
+3. Adding session management
+4. Implementing security measures
+
+Does this approach work for your use case?
+```
+
+### ⚡ Intelligent Model Selection
+The auto-router automatically picks the best model:
+- **Simple fixes** → grok-4-fast (speed optimized)
+- **Complex reasoning** → grok-4-0709 (quality optimized)
+- **Large codebases** → grok-4-heavy (comprehensive analysis)
+- **Coding tasks** → grok-fast-code-1 (specialized for code)
+
+### 🔗 Timeout Prevention
+Long operations stay connected with heartbeat signals, preventing timeouts during:
+- Large codebase analysis
+- Complex debugging sessions
+- Comprehensive security reviews
+
+**📖 For detailed user experience guide, see [`docs/GROK_USER_EXPERIENCE.md`](../docs/GROK_USER_EXPERIENCE.md)**
 
 ## Verification
 
