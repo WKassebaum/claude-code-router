@@ -20,7 +20,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_PLUGINS_DIR="$(dirname "$SCRIPT_DIR")/plugins"
 
 # Transformer names
-TRANSFORMERS=("grok-status-updates" "grok-interactive" "grok-heartbeat" "grok-auto-router")
+TRANSFORMERS=("grok-status-updates" "grok-interactive" "grok-heartbeat" "grok-auto-router" "grok-fast-reasoning-router")
 
 # Functions
 print_header() {
@@ -196,6 +196,16 @@ update_config_with_jq() {
       "enablePerformanceOptimization": true,
       "routingStrategy": "balanced"
     }
+  },
+  {
+    "path": "'$PLUGINS_DIR'/grok-fast-reasoning-router.js",
+    "options": {
+      "enabled": true,
+      "defaultVariant": "auto",
+      "reasoningThreshold": 0.3,
+      "preferReasoning": false,
+      "explainRouting": false
+    }
   }
 ]'
 
@@ -209,7 +219,8 @@ update_config_with_jq() {
           "grok-status-updates",
           "grok-interactive",
           "grok-heartbeat",
-          "grok-auto-router"
+          "grok-auto-router",
+          "grok-fast-reasoning-router"
         ]' "$CONFIG_FILE" > "$temp_file"
         mv "$temp_file" "$CONFIG_FILE"
         print_status "Updated existing xAI provider configuration"
@@ -263,6 +274,16 @@ update_config_manual() {
       "enableComplexityAnalysis": true,
       "enablePerformanceOptimization": true,
       "routingStrategy": "balanced"
+    }
+  },
+  {
+    "path": "/path/to/plugins/grok-fast-reasoning-router.js",
+    "options": {
+      "enabled": true,
+      "defaultVariant": "auto",
+      "reasoningThreshold": 0.3,
+      "preferReasoning": false,
+      "explainRouting": false
     }
   }
 ]

@@ -76,6 +76,15 @@ The new XAI models are designed for agentic behavior and can work independently,
 - Balances speed vs quality based on task type
 - Routes coding tasks, reasoning tasks, and simple queries appropriately
 
+### 5. `grok-fast-reasoning-router.js`
+**Purpose**: Intelligently selects between `grok-4-fast-reasoning` and `grok-4-fast-non-reasoning` variants
+
+**Features**:
+- Analyzes requests for reasoning requirements
+- Calculates reasoning score (0.0-1.0)
+- Auto-selects optimal variant based on threshold
+- Supports manual override and configuration
+
 **Model Routing Matrix**:
 - **grok-4-fast**: Quick responses, simple coding, fast iteration
 - **grok-4-0709**: Complex reasoning, architecture decisions, deep analysis
@@ -241,11 +250,18 @@ Does this approach work for your use case?
 ```
 
 ### ⚡ Intelligent Model Selection
-The auto-router automatically picks the best model:
-- **Simple fixes** → grok-4-fast (speed optimized)
+The routers work together to pick the best model:
+
+**Auto-Router** selects base model:
+- **Simple fixes** → grok-4-fast (then reasoning router picks variant)
 - **Complex reasoning** → grok-4-0709 (quality optimized)
 - **Large codebases** → grok-4-heavy (comprehensive analysis)
 - **Coding tasks** → grok-fast-code-1 (specialized for code)
+
+**Reasoning Router** selects grok-4-fast variant:
+- **Debugging/Analysis** → grok-4-fast-reasoning
+- **Code Generation** → grok-4-fast-non-reasoning
+- **Automatic selection** based on reasoning score (0.0-1.0)
 
 ### 🔗 Timeout Prevention
 Long operations stay connected with heartbeat signals, preventing timeouts during:

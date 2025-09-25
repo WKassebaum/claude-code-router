@@ -74,7 +74,26 @@ class GrokAutoRouterTransformer {
         coding: 8,
         maxTokens: 100000,
         cost: 3,
-        bestFor: ['quick responses', 'simple coding', 'fast iteration']
+        bestFor: ['quick responses', 'simple coding', 'fast iteration'],
+        note: 'Base model - consider using reasoning/non-reasoning variants'
+      },
+      'grok-4-fast-reasoning': {
+        speed: 8,
+        quality: 8,
+        reasoning: 9,
+        coding: 8,
+        maxTokens: 100000,
+        cost: 4,
+        bestFor: ['debugging', 'analysis', 'explanations', 'architecture decisions']
+      },
+      'grok-4-fast-non-reasoning': {
+        speed: 10,
+        quality: 7,
+        reasoning: 5,
+        coding: 9,
+        maxTokens: 100000,
+        cost: 3,
+        bestFor: ['code generation', 'transformations', 'formatting', 'simple tasks']
       },
       'grok-4-0709': {
         speed: 6,
@@ -362,9 +381,10 @@ class GrokAutoRouterTransformer {
     if (analysis.isTimeS_Sensitive || analysis.complexity === 'low') {
       return 'grok-3-fast';
     }
-    if (analysis.requiresCoding) {
+    if (analysis.requiresCoding && !analysis.requiresReasoning) {
       return 'grok-fast-code-1';
     }
+    // Return base model - reasoning router will handle variant selection
     return 'grok-4-fast';
   }
 
@@ -398,22 +418,27 @@ class GrokAutoRouterTransformer {
       return 'grok-4-0709';
     }
 
-    // Coding tasks -> specialized model
-    if (analysis.requiresCoding && !analysis.isTimeS_Sensitive) {
+    // Specialized coding tasks -> code-optimized model
+    if (analysis.requiresCoding && !analysis.requiresReasoning && !analysis.isTimeS_Sensitive) {
       return 'grok-fast-code-1';
     }
 
-    // Time sensitive or simple -> fast model
+    // Time sensitive or simple -> fast model (reasoning router will pick variant)
     if (analysis.isTimeS_Sensitive || analysis.complexity === 'low') {
-      return 'grok-4-fast';
+      return 'grok-4-fast'; // Base model - reasoning router handles variant
     }
 
-    // Medium complexity -> balanced model
+    // Medium complexity with mixed requirements -> fast model (reasoning router picks variant)
+    if (analysis.complexity === 'medium' && (analysis.requiresCoding || analysis.requiresReasoning)) {
+      return 'grok-4-fast'; // Base model - reasoning router handles variant
+    }
+
+    // Medium complexity general tasks -> balanced model
     if (analysis.complexity === 'medium') {
       return 'grok-3';
     }
 
-    // Default fallback
+    // Default fallback - let reasoning router handle variant selection
     return 'grok-4-fast';
   }
 
