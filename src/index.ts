@@ -141,12 +141,25 @@ async function run(options: RunOptions = {}) {
   });
 
   // Add global error handlers to prevent the service from crashing
-  process.on("uncaughtException", (err) => {
-    server.log.error("Uncaught exception:", err);
+  process.on("uncaughtException", (err: any) => {
+    if (server && server.log) {
+      server.log.error("Uncaught exception:", err?.message || String(err) || 'Unknown error');
+      server.log.error("Stack trace:", err?.stack || 'No stack trace available');
+    } else {
+      console.error("Uncaught exception:", err?.message || String(err) || 'Unknown error');
+      console.error("Stack trace:", err?.stack || 'No stack trace available');
+      console.error("Full error object:", err);
+    }
+    // Exit gracefully to allow restart
+    process.exit(1);
   });
 
   process.on("unhandledRejection", (reason, promise) => {
-    server.log.error("Unhandled rejection at:", promise, "reason:", reason);
+    if (server && server.log) {
+      server.log.error("Unhandled rejection at:", promise, "reason:", reason);
+    } else {
+      console.error("Unhandled rejection at:", promise, "reason:", reason);
+    }
   });
   // Add async preHandler hook for authentication
   server.addHook("preHandler", async (req, reply) => {
@@ -163,18 +176,18 @@ async function run(options: RunOptions = {}) {
       apiKeyAuth(config)(req, reply, done).catch(reject);
     });
   });
-  server.addHook("preHandler", async (req, reply) => {
+  server.addHook("preHandler", async (req: any, reply: any) => {
     if (req.url.startsWith("/v1/messages")) {
       const useAgents = []
-
+ 
       for (const agent of agentsManager.getAllAgents()) {
         if (agent.shouldHandle(req, config)) {
           // 设置agent标识
           useAgents.push(agent.name)
-
+ 
           // change request body
           agent.reqHandler(req, config);
-
+ 
           // append agent tools
           if (agent.tools.size) {
             if (!req.body?.tools?.length) {
@@ -190,7 +203,7 @@ async function run(options: RunOptions = {}) {
           }
         }
       }
-
+ 
       if (useAgents.length) {
         req.agents = useAgents;
       }
@@ -199,6 +212,39 @@ async function run(options: RunOptions = {}) {
         event
       });
     }
+  });
+
+  // Add retry logic for 429 errors from xAI
+  let retryCount = 0;
+  const maxRetries = 3;
+  server.addHook("onError", async (request: any, reply: any, error: any) => {
+    if (request.url.startsWith("/v1/messages") && error.statusCode === 429 && error.message.includes('xai')) {
+      if (retryCount < maxRetries) {
+        retryCount++;
+        const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff: 2s, 4s, 8s
+        console.log(`429 from xAI, retry ${retryCount}/${maxRetries} after ${delay}ms`);
+        await new Promise<void>((resolve) => setTimeout(() => resolve(), delay));
+        // Fallback to Gemini if retries exhausted
+        if (retryCount === maxRetries) {
+          const fallbackModel = "gemini,gemini-2.5-flash";
+          request.body.model = fallbackModel;
+          console.log(`Fallback to ${fallbackModel} after xAI exhaustion`);
+        }
+        // Retry the request
+        try {
+          const response = await server.app.inject({
+            method: request.method as string,
+            url: request.url,
+            body: request.body,
+            headers: request.headers
+          });
+          return response;
+        } catch (retryError: any) {
+          throw retryError;
+        }
+      }
+    }
+    throw error;
   });
   server.addHook("onError", async (request, reply, error) => {
     event.emit('onError', request, reply, error);
@@ -363,8 +409,11 @@ async function run(options: RunOptions = {}) {
         read(clonedStream);
         return done(null, originalStream)
       }
-      sessionUsageCache.put(req.sessionId, normalizeUsage(payload.usage));
-      if (typeof payload ==='object') {
+      // Check if payload exists before accessing its properties
+      if (payload && payload.usage) {
+        sessionUsageCache.put(req.sessionId, normalizeUsage(payload.usage));
+      }
+      if (payload && typeof payload === 'object') {
         if (payload.error) {
           return done(payload.error, null)
         } else {
@@ -372,7 +421,7 @@ async function run(options: RunOptions = {}) {
         }
       }
     }
-    if (typeof payload ==='object' && payload.error) {
+    if (payload && typeof payload === 'object' && payload.error) {
       return done(payload.error, null)
     }
     done(null, payload)
@@ -384,19 +433,47 @@ async function run(options: RunOptions = {}) {
 
     // Extract provider and model from request
     if (req.body?.model) {
-      const [provider, model] = req.body.model.split(',');
+      let provider: string | undefined;
+      let model: string | undefined;
+      
+      // Check if model contains a comma (provider,model format)
+      if (req.body.model.includes(',')) {
+        [provider, model] = req.body.model.split(',');
+      } else {
+        // No comma, so the whole string is the model
+        model = req.body.model;
+        
+        // Infer provider from model prefix
+        if (model) {
+          if (model.startsWith('grok-')) {
+            provider = 'xai';
+          } else if (model.startsWith('claude-')) {
+            provider = 'anthropic';
+          } else if (model.startsWith('gpt-') || model.startsWith('o1-') || model.startsWith('o3-')) {
+            provider = 'openai';
+          } else if (model.startsWith('gemini-')) {
+            provider = 'gemini';
+          } else if (model.startsWith('deepseek-')) {
+            provider = 'deepseek';
+          }
+        }
+      }
+      
       const sessionId = (req as any).sessionId || 'unknown';
 
       // Get usage from cache
       const usage = sessionUsageCache.get(sessionId);
 
       if (usage) {
+        // Log for debugging
+        console.log('Recording usage with provider:', provider, 'model:', model);
+        
         // Record usage to database
         usageTracker.recordUsage({
           sessionId,
           requestId: (req as any).requestId || uuidv4(),
-          provider,
-          model,
+          provider: provider || '',
+          model: model || '',
           inputTokens: usage.input_tokens || 0,
           outputTokens: usage.output_tokens || 0,
           responseTime,

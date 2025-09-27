@@ -18,7 +18,7 @@ if (!existsSync(BACKUP_DIR)) {
 }
 
 // Initialize database
-let db: Database.Database | null = null;
+export let db: Database.Database | null = null;
 
 try {
   db = new Database(DB_PATH);
@@ -85,7 +85,6 @@ try {
       UNIQUE(date, provider, model)
     );
 
-    -- Create indexes for performance
     CREATE INDEX IF NOT EXISTS idx_usage_timestamp ON usage_records(timestamp);
     CREATE INDEX IF NOT EXISTS idx_usage_session ON usage_records(session_id);
     CREATE INDEX IF NOT EXISTS idx_usage_provider_model ON usage_records(provider, model);
@@ -93,59 +92,56 @@ try {
     CREATE INDEX IF NOT EXISTS idx_daily_date ON daily_summaries(date);
   `);
 
-  // Insert default pricing data
-  const insertPricing = db.prepare(`
-    INSERT OR REPLACE INTO model_pricing
-    (provider, model, input_price_per_1k, output_price_per_1k, cached_input_price_per_1k, cached_output_price_per_1k)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `);
+  // Insert default pricing data if table is empty
+  const countStmt = db.prepare('SELECT COUNT(*) as count FROM model_pricing');
+  const count = countStmt.get() as any;
 
-  // Default pricing (actual prices as of Jan 2025)
-  const defaultPricing = [
-    // OpenAI
-    ['openai', 'gpt-4', 0.03, 0.06, 0.015, 0.03],
-    ['openai', 'gpt-4-turbo', 0.01, 0.03, 0.005, 0.015],
-    ['openai', 'gpt-3.5-turbo', 0.0005, 0.0015, 0.00025, 0.00075],
-    ['openai', 'o3-mini', 0.015, 0.06, 0.0075, 0.03],
-    ['openai', 'o3', 0.015, 0.06, 0.0075, 0.03],
+  if (count.count === 0) {
+    const insertPricing = db.prepare(`
+      INSERT OR REPLACE INTO model_pricing
+      (provider, model, input_price_per_1k, output_price_per_1k, cached_input_price_per_1k, cached_output_price_per_1k)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `);
 
-    // Anthropic
-    ['anthropic', 'claude-opus-4', 0.015, 0.075, 0.0075, 0.0375],
-    ['anthropic', 'claude-sonnet-4', 0.003, 0.015, 0.0015, 0.0075],
-    ['anthropic', 'claude-3.5-haiku', 0.0008, 0.004, 0.0004, 0.002],
+    const defaultPricing = [
+      // OpenAI
+      ['openai', 'gpt-4o', 0.005, 0.015, 0.0025, 0.0075],
+      ['openai', 'gpt-4-turbo', 0.01, 0.03, 0.005, 0.015],
+      ['openai', 'gpt-4', 0.03, 0.06, 0.015, 0.03],
+      ['openai', 'gpt-3.5-turbo', 0.0005, 0.0015, 0.00025, 0.00075],
+      ['openai', 'o1-mini', 0.015, 0.06, 0.0075, 0.03],
+      ['openai', 'o1', 0.015, 0.06, 0.0075, 0.03],
 
-    // XAI
-    ['xai', 'grok-4-fast', 0.0002, 0.0005, 0.0001, 0.00025],
-    ['xai', 'grok-fast-code-1', 0.0002, 0.0005, 0.0001, 0.00025],
-    ['xai', 'grok-3', 0.0005, 0.0015, 0.00025, 0.00075],
-    ['xai', 'grok-4-0709', 0.0005, 0.0015, 0.00025, 0.00075],
+      // Anthropic
+      ['anthropic', 'claude-opus-4-1-20250805', 0.015, 0.075, 0.0075, 0.0375],
+      ['anthropic', 'claude-opus-4-1', 0.015, 0.075, 0.0075, 0.0375],
+      ['anthropic', 'claude-opus-4-20250514', 0.015, 0.075, 0.0075, 0.0375],
+      ['anthropic', 'claude-opus-4-0', 0.015, 0.075, 0.0075, 0.0375],
+      ['anthropic', 'claude-sonnet-4-20250514', 0.003, 0.015, 0.0015, 0.0075],
+      ['anthropic', 'claude-sonnet-4-0', 0.003, 0.015, 0.0015, 0.0075],
+      ['anthropic', 'claude-3-7-sonnet-20250219', 0.003, 0.015, 0.0015, 0.0075],
+      ['anthropic', 'claude-3-7-sonnet-latest', 0.003, 0.015, 0.0015, 0.0075],
+      ['anthropic', 'claude-3.5-haiku-20241022', 0.00025, 0.00125, 0.000125, 0.000625],
+      ['anthropic', 'claude-3.5-haiku-latest', 0.00025, 0.00125, 0.000125, 0.000625],
+      ['anthropic', 'claude-3-haiku-20240307', 0.00025, 0.00125, 0.000125, 0.000625],
 
-    // Google
-    ['gemini', 'gemini-2.5-pro', 0.00125, 0.005, 0.0003125, 0.00125],
-    ['gemini', 'gemini-2.5-flash', 0.000075, 0.0003, 0.0000375, 0.00015],
-    ['gemini', 'gemini-2.0-flash', 0.000075, 0.0003, 0.0000375, 0.00015],
+      // xAI
+      ['xai', 'grok-beta', 0.0005, 0.0015, 0.00025, 0.00075],
+      ['xai', 'grok-2', 0.0005, 0.0015, 0.00025, 0.00075],
+      ['xai', 'grok-4-fast', 0.0002, 0.0005, 0.0001, 0.00025],
+      ['xai', 'grok-fast-code-1', 0.0002, 0.0005, 0.0001, 0.00025],
 
-    // DeepSeek
-    ['deepseek', 'deepseek-chat', 0.00014, 0.00028, 0.00007, 0.00014],
-    ['deepseek', 'deepseek-reasoner', 0.00055, 0.0022, 0.000275, 0.0011],
-    ['deepseek', 'deepseek-r1-0528', 0.00055, 0.0022, 0.000275, 0.0011],
+      // Google
+      ['gemini', 'gemini-1.5-pro', 0.00125, 0.005, 0.000625, 0.0025],
+      ['gemini', 'gemini-1.5-flash', 0.000075, 0.0003, 0.0000375, 0.00015],
+      ['gemini', 'gemini-2.0-flash-exp', 0.0, 0.0, 0.0, 0.0],
+    ];
 
-    // OpenRouter models (add x-ai prefix for OpenRouter)
-    ['openrouter', 'x-ai/grok-4-fast', 0.0002, 0.0005, 0.0001, 0.00025],
-    ['openrouter', 'x-ai/grok-4-fast:free', 0.0, 0.0, 0.0, 0.0],
-    ['openrouter', 'anthropic/claude-sonnet-4', 0.003, 0.015, 0.0015, 0.0075],
-    ['openrouter', 'google/gemini-2.5-pro-preview', 0.00125, 0.005, 0.0003125, 0.00125],
-  ];
-
-  defaultPricing.forEach(pricing => insertPricing.run(...pricing));
-
-  // Silently succeed - database is initialized
-} catch (error) {
-  // Log error only if it's a critical failure
-  if (process.env.DEBUG) {
-    console.error('Failed to initialize database:', error);
+    defaultPricing.forEach(pricing => insertPricing.run(...pricing));
   }
-  // Continue without database - fallback to memory-only tracking
+} catch (error) {
+  console.error('Failed to initialize database:', error);
+  db = null;
 }
 
 // Usage tracking interface
@@ -242,21 +238,84 @@ export class UsageTracker {
   private calculateCost(data: UsageData): number {
     if (!db) return 0;
 
+    // Auto-fetch pricing if missing for this model
+    fetchModelPricing(data.provider, data.model);
+
+    // Handle cases where model might be null/undefined or combined with provider
+    let provider = data.provider;
+    let model = data.model;
+
+    // Provider override based on model name for accuracy
+    if (model) {
+      const modelLower = model.toLowerCase();
+      if (model.startsWith('grok-')) {
+        provider = 'xai';
+      } else if (modelLower.includes('claude') || modelLower.includes('opus') || modelLower.includes('sonnet') || modelLower.includes('haiku')) {
+        provider = 'anthropic';
+      } else if (model.startsWith('gpt-') || model.startsWith('o1-') || model.startsWith('o3')) {
+        provider = 'openai';
+      } else if (model.startsWith('gemini-')) {
+        provider = 'gemini';
+      } else if (model.startsWith('deepseek-')) {
+        provider = 'deepseek';
+      }
+    }
+
+    // If model is null but provider contains a dash or model name, split it
+    if (!model && provider) {
+      // Common patterns:
+      // "gemini-2.5-flash" -> provider: "gemini", model: "gemini-2.5-flash"
+      // "grok-4-fast" -> provider: "xai", model: "grok-4-fast"
+      if (provider.startsWith('gemini-')) {
+        model = provider;
+        provider = 'gemini';
+      } else if (provider.startsWith('grok-')) {
+        model = provider;
+        provider = 'xai';
+      } else if (provider.startsWith('claude-')) {
+        model = provider;
+        provider = 'anthropic';
+      } else if (provider.startsWith('gpt-') || provider.startsWith('o3')) {
+        model = provider;
+        provider = 'openai';
+      } else if (provider.startsWith('deepseek-')) {
+        model = provider;
+        provider = 'deepseek';
+      }
+    }
+
+    // Try exact match first
     const pricing = db.prepare(`
       SELECT * FROM model_pricing
       WHERE provider = ? AND model = ?
       ORDER BY effective_date DESC
       LIMIT 1
-    `).get(data.provider, data.model) as any;
+    `).get(provider, model) as any;
 
     if (!pricing) {
+      // Try to find by model name alone (some models might be stored this way)
+      const modelOnlyPricing = db.prepare(`
+        SELECT * FROM model_pricing
+        WHERE model = ?
+        ORDER BY effective_date DESC
+        LIMIT 1
+      `).get(model || provider) as any;
+
+      if (modelOnlyPricing) {
+        const inputCost = (data.inputTokens / 1000) * modelOnlyPricing.input_price_per_1k;
+        const outputCost = (data.outputTokens / 1000) * modelOnlyPricing.output_price_per_1k;
+        const cachedInputCost = ((data.cachedInputTokens || 0) / 1000) * (modelOnlyPricing.cached_input_price_per_1k || 0);
+        const cachedOutputCost = ((data.cachedOutputTokens || 0) / 1000) * (modelOnlyPricing.cached_output_price_per_1k || 0);
+        return inputCost + outputCost + cachedInputCost + cachedOutputCost;
+      }
+
       // Try to find a default pricing for the provider
       const defaultPricing = db.prepare(`
         SELECT * FROM model_pricing
         WHERE provider = ?
         ORDER BY effective_date DESC
         LIMIT 1
-      `).get(data.provider) as any;
+      `).get(provider) as any;
 
       if (!defaultPricing) return 0;
 
@@ -290,6 +349,7 @@ export class UsageTracker {
       WHERE timestamp BETWEEN ? AND ?
       GROUP BY provider, model
       ORDER BY total_cost DESC
+      LIMIT 1000
     `;
 
     const start = startDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // 30 days ago
@@ -415,30 +475,58 @@ export class UsageTracker {
   }
 }
 
-// Export singleton instance
 export const usageTracker = UsageTracker.getInstance();
 
-// Export database for direct queries if needed
-export { db };
+// Auto-fetch pricing for missing models
+export async function fetchModelPricing(provider: string, model: string): Promise<boolean> {
+  if (!db) return false;
 
-// Setup daily maintenance tasks
-if (db) {
-  // Daily aggregation at 3 AM
-  setInterval(() => {
-    const hour = new Date().getHours();
-    if (hour === 3) {
-      usageTracker.aggregateDailyUsage();
-      usageTracker.backupDatabase();
-    }
-  }, 60 * 60 * 1000); // Check every hour
+  try {
+    let pricingData: { input: number; output: number; cached_input: number; cached_output: number } | null = null;
 
-  // Weekly VACUUM
-  setInterval(() => {
-    try {
-      db?.exec('VACUUM;');
-      console.log('✅ Database vacuumed');
-    } catch (error) {
-      console.error('Failed to vacuum database:', error);
+    if (provider === 'openai') {
+      type PricingType = { input: number; output: number; cached_input: number; cached_output: number };
+      const openaiPricing: Record<string, PricingType> = {
+        'gpt-4o': { input: 0.005, output: 0.015, cached_input: 0.0025, cached_output: 0.0075 },
+        'gpt-4-turbo': { input: 0.01, output: 0.03, cached_input: 0.005, cached_output: 0.015 },
+        'gpt-4': { input: 0.03, output: 0.06, cached_input: 0.015, cached_output: 0.03 },
+        'gpt-3.5-turbo': { input: 0.0005, output: 0.0015, cached_input: 0.00025, cached_output: 0.00075 },
+        'o1-mini': { input: 0.015, output: 0.06, cached_input: 0.0075, cached_output: 0.03 },
+        'o1': { input: 0.015, output: 0.06, cached_input: 0.0075, cached_output: 0.03 },
+      };
+
+      pricingData = openaiPricing[model] || null;
+    } else if (provider === 'anthropic') {
+      type PricingType = { input: number; output: number; cached_input: number; cached_output: number };
+      const anthropicPricing: Record<string, PricingType> = {
+        'claude-opus-4-1-20250805': { input: 0.015, output: 0.075, cached_input: 0.0075, cached_output: 0.0375 },
+        'claude-opus-4-1': { input: 0.015, output: 0.075, cached_input: 0.0075, cached_output: 0.0375 },
+        'claude-opus-4-20250514': { input: 0.015, output: 0.075, cached_input: 0.0075, cached_output: 0.0375 },
+        'claude-opus-4-0': { input: 0.015, output: 0.075, cached_input: 0.0075, cached_output: 0.0375 },
+        'claude-sonnet-4-20250514': { input: 0.003, output: 0.015, cached_input: 0.0015, cached_output: 0.0075 },
+        'claude-sonnet-4-0': { input: 0.003, output: 0.015, cached_input: 0.0015, cached_output: 0.0075 },
+        'claude-3-7-sonnet-20250219': { input: 0.003, output: 0.015, cached_input: 0.0015, cached_output: 0.0075 },
+        'claude-3-7-sonnet-latest': { input: 0.003, output: 0.015, cached_input: 0.0015, cached_output: 0.0075 },
+        'claude-3.5-haiku-20241022': { input: 0.00025, output: 0.00125, cached_input: 0.000125, cached_output: 0.000625 },
+        'claude-3.5-haiku-latest': { input: 0.00025, output: 0.00125, cached_input: 0.000125, cached_output: 0.000625 },
+        'claude-3-haiku-20240307': { input: 0.00025, output: 0.00125, cached_input: 0.000125, cached_output: 0.000625 },
+      };
+
+      pricingData = anthropicPricing[model] || null;
+    } // Add more providers as needed
+
+    if (pricingData) {
+      const insertStmt = db.prepare(`
+        INSERT OR REPLACE INTO model_pricing
+        (provider, model, input_price_per_1k, output_price_per_1k, cached_input_price_per_1k, cached_output_price_per_1k)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `);
+      insertStmt.run(provider, model, pricingData.input, pricingData.output, pricingData.cached_input, pricingData.cached_output);
+      return true;
     }
-  }, 7 * 24 * 60 * 60 * 1000); // Weekly
+    return false;
+  } catch (error) {
+    console.error(`Failed to fetch pricing for ${provider}/${model}:`, error);
+    return false;
+  }
 }

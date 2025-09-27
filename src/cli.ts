@@ -13,8 +13,31 @@ import { spawn, exec } from "child_process";
 import { PID_FILE, REFERENCE_COUNT_FILE } from "./constants";
 import fs, { existsSync, readFileSync } from "fs";
 import { join } from "path";
+import { homedir } from "os";
+import { fetchModelPricing } from "./utils/database";
 
 const command = process.argv[2];
+
+if (command === 'update-pricing') {
+  (async () => {
+    console.log('Updating model pricing...');
+    await fetchModelPricing('openai', 'gpt-4o');
+    await fetchModelPricing('anthropic', 'claude-3.5-sonnet');
+    console.log('Pricing updated successfully!');
+    process.exit(0);
+  })();
+}
+
+const args = process.argv.slice(3);
+const isDaemon = args.includes('--daemon');
+
+const LOG_DIR = join(homedir(), '.claude-code-router', 'logs');
+const LOG_FILE = join(LOG_DIR, 'ccr.log');
+
+// Ensure log directory exists
+if (!existsSync(LOG_DIR)) {
+  fs.mkdirSync(LOG_DIR, { recursive: true });
+}
 
 const HELP_TEXT = `
 Usage: ccr [command]
@@ -27,6 +50,7 @@ Commands:
   statusline    Integrated statusline
   code          Execute claude command
   ui            Open the web UI in browser
+  update-pricing Update model pricing
   -v, version   Show version information
   -h, help      Show help information
 
@@ -60,7 +84,27 @@ async function main() {
   const isRunning = await isServiceRunning()
   switch (command) {
     case "start":
-      run();
+      if (isDaemon) {
+        const child = spawn("node", [join(process.cwd(), 'dist', 'cli.js'), "start"], {
+          detached: true,
+          stdio: ['ignore', 'pipe', 'pipe'],
+        });
+
+        const logStream = fs.createWriteStream(LOG_FILE, { flags: 'a' });
+        child.stdout?.pipe(logStream);
+        child.stderr?.pipe(logStream);
+
+        child.on('error', (err) => {
+          console.error('Failed to start daemon:', err);
+          process.exit(1);
+        });
+
+        child.unref();
+        console.log(`CCR started in daemon mode. Logs: ${LOG_FILE}`);
+        process.exit(0);
+      } else {
+        run();
+      }
       break;
     case "stop":
       try {
@@ -82,6 +126,46 @@ async function main() {
           "Failed to stop the service. It may have already been stopped."
         );
         cleanupPidFile();
+      }
+      break;
+    case "restart":
+      try {
+        const pid = parseInt(readFileSync(PID_FILE, "utf-8"));
+        process.kill(pid);
+        cleanupPidFile();
+        console.log(
+          "claude code router service has been successfully stopped."
+        );
+      } catch (e) {
+        console.log(
+          "Failed to stop the service. It may have already been stopped."
+        );
+        cleanupPidFile();
+      }
+      // Wait a moment for the service to fully stop
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      
+      console.log("Starting service...");
+      const cliPath = join(__dirname, "cli.js");
+      const startProcess = spawn("node", [cliPath, "start"], {
+        detached: true,
+        stdio: "ignore",
+      });
+
+      startProcess.on("error", (error) => {
+        console.error("Failed to start service:", error.message);
+        process.exit(1);
+      });
+
+      startProcess.unref();
+
+      if (await waitForService()) {
+        console.log("Service restarted successfully.");
+      } else {
+        console.error(
+          "Service startup timeout, please manually run `ccr start` to start the service"
+        );
+        process.exit(1);
       }
       break;
     case "status":
@@ -118,22 +202,10 @@ async function main() {
           stdio: "ignore",
         });
 
-        // let errorMessage = "";
-        // startProcess.stderr?.on("data", (data) => {
-        //   errorMessage += data.toString();
-        // });
-
         startProcess.on("error", (error) => {
           console.error("Failed to start service:", error.message);
           process.exit(1);
         });
-
-        // startProcess.on("close", (code) => {
-        //   if (code !== 0 && errorMessage) {
-        //     console.error("Failed to start service:", errorMessage.trim());
-        //     process.exit(1);
-        //   }
-        // });
 
         startProcess.unref();
 
@@ -275,41 +347,6 @@ async function main() {
     case "-v":
     case "version":
       console.log(`claude-code-router version: ${version}`);
-      break;
-    case "restart":
-      // Stop the service if it's running
-      try {
-        const pid = parseInt(readFileSync(PID_FILE, "utf-8"));
-        process.kill(pid);
-        cleanupPidFile();
-        if (existsSync(REFERENCE_COUNT_FILE)) {
-          try {
-            fs.unlinkSync(REFERENCE_COUNT_FILE);
-          } catch (e) {
-            // Ignore cleanup errors
-          }
-        }
-        console.log("claude code router service has been stopped.");
-      } catch (e) {
-        console.log("Service was not running or failed to stop.");
-        cleanupPidFile();
-      }
-
-      // Start the service again in the background
-      console.log("Starting claude code router service...");
-      const cliPath = join(__dirname, "cli.js");
-      const startProcess = spawn("node", [cliPath, "start"], {
-        detached: true,
-        stdio: "ignore",
-      });
-
-      startProcess.on("error", (error) => {
-        console.error("Failed to start service:", error);
-        process.exit(1);
-      });
-
-      startProcess.unref();
-      console.log("✅ Service started successfully in the background.");
       break;
     case "-h":
     case "help":

@@ -214,6 +214,17 @@ Start Claude Code using the router:
 
 ```shell
 ccr code
+
+### Starting the Router in Daemon Mode
+
+To run the router in the background with logging to `~/.claude-code-router/logs/ccr.log`:
+
+```shell
+ccr start --daemon
+```
+
+This spawns a detached process, freeing the terminal. Logs are written to the file for monitoring (e.g., `tail -f ~/.claude-code-router/logs/ccr.log`). Use `ccr stop` to shut down.
+
 ```
 
 > **Note**: After modifying the configuration file, you need to restart the service for the changes to take effect:

@@ -3,6 +3,10 @@
 export interface Usage {
   input_tokens: number;
   output_tokens: number;
+  model?: string;
+  provider?: string;
+  route?: string;
+  timestamp?: string;
 }
 
 class LRUCache<K, V> {

@@ -291,15 +291,19 @@ export const createServer = (config: any): Server => {
 
       // Get active routing info
       const config = await readConfigFile();
-      const activeRoute = config.Router?.default || '';
+      const activeRoute = currentUsage?.route || (config.Router?.default || '');
       const [provider, model] = activeRoute.split(',');
+
+      // Auto-fetch pricing if missing
+      await fetchModelPricing(provider, model);
 
       return {
         isUsingCCR: true,  // Always true when this endpoint is hit
         currentModel: {
           provider,
           model,
-          route: activeRoute
+          route: activeRoute,
+          isActual: !!currentUsage?.route
         },
         currentSession: {
           inputTokens: currentUsage?.input_tokens || 0,
