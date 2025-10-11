@@ -22,10 +22,15 @@
 
 - **Model Routing**: Route requests to different models based on your needs (e.g., background tasks, thinking, long context).
 - **Multi-Provider Support**: Supports various model providers like OpenRouter, DeepSeek, Ollama, Gemini, Volcengine, and SiliconFlow.
+- **Anthropic Subscription Support**: Use your Anthropic Pro/Team subscription alongside API keys.
+- **Token Usage Tracking**: Persistent tracking of token usage with SQLite database.
+- **Cost Analytics**: Real-time cost calculation and analytics dashboard.
+- **Statusline Integration**: Real-time usage display with CCR detection.
 - **Request/Response Transformation**: Customize requests and responses for different providers using transformers.
 - **Dynamic Model Switching**: Switch models on-the-fly within Claude Code using the `/model` command.
 - **GitHub Actions Integration**: Trigger Claude Code tasks in your GitHub workflows.
 - **Plugin System**: Extend functionality with custom transformers.
+- **Usage Export**: Export usage data in CSV or JSON format for billing reconciliation.
 
 ## 🚀 Getting Started
 
@@ -209,6 +214,17 @@ Start Claude Code using the router:
 
 ```shell
 ccr code
+
+### Starting the Router in Daemon Mode
+
+To run the router in the background with logging to `~/.claude-code-router/logs/ccr.log`:
+
+```shell
+ccr start --daemon
+```
+
+This spawns a detached process, freeing the terminal. Logs are written to the file for monitoring (e.g., `tail -f ~/.claude-code-router/logs/ccr.log`). Use `ccr stop` to shut down.
+
 ```
 
 > **Note**: After modifying the configuration file, you need to restart the service for the changes to take effect:
@@ -235,9 +251,38 @@ The `Providers` array is where you define the different model providers you want
 
 - `name`: A unique name for the provider.
 - `api_base_url`: The full API endpoint for chat completions.
-- `api_key`: Your API key for the provider.
+- `api_key`: Your API key for the provider (for API-based access).
+- `auth_type` (optional): Authentication type - `"api_key"` or `"subscription"` (for Anthropic).
+- `auth_token` (optional): Authentication token for subscription-based access.
 - `models`: A list of model names available from this provider.
 - `transformer` (optional): Specifies transformers to process requests and responses.
+
+##### Anthropic Subscription Support
+
+You can now use your Anthropic Pro/Team subscription alongside API keys:
+
+```json
+{
+  "Providers": [
+    {
+      "name": "anthropic-subscription",
+      "api_base_url": "https://api.anthropic.com/v1/messages",
+      "auth_type": "subscription",
+      "auth_token": "YOUR_ANTHROPIC_AUTH_TOKEN",
+      "models": ["claude-opus-4", "claude-sonnet-4", "claude-3.5-haiku"],
+      "transformer": { "use": ["anthropic"] }
+    },
+    {
+      "name": "anthropic-api",
+      "api_base_url": "https://api.anthropic.com/v1/messages",
+      "auth_type": "api_key",
+      "api_key": "sk-ant-api03-...",
+      "models": ["claude-opus-4", "claude-sonnet-4"],
+      "transformer": { "use": ["anthropic"] }
+    }
+  ]
+}
+```
 
 #### Transformers
 
@@ -411,8 +456,45 @@ For routing within subagents, you must specify a particular provider and model b
 Please help me analyze this code snippet for potential optimizations...
 ```
 
+## 📊 Usage Tracking & Analytics
+
+Claude Code Router now includes comprehensive usage tracking and cost analytics:
+
+### Features
+- **Persistent Storage**: SQLite database stores all usage data locally
+- **Real-time Tracking**: Every request is tracked with input/output tokens
+- **Cost Calculation**: Automatic cost calculation based on model pricing
+- **Analytics Dashboard**: Visual dashboard in the UI for usage analysis
+- **Export Functionality**: Export usage data as CSV or JSON
+
+### Accessing the Dashboard
+1. Open the UI: `ccr ui`
+2. Navigate to the Usage tab
+3. View analytics, filter by date range, and export data
+
+### API Endpoints
+- `GET /api/usage/summary` - Usage summary with cost breakdown
+- `GET /api/usage/details` - Detailed usage records
+- `GET /api/usage/export?format=csv` - Export usage data
+- `GET /api/costs/models` - View/update model pricing
+
+### Database Location
+Usage data is stored in `~/.claude-code-router/usage.db`
+
 ## Status Line (Beta)
 To better monitor the status of claude-code-router at runtime, version v1.0.40 includes a built-in statusline tool, which you can enable in the UI.
+
+### Enhanced Statusline Integration
+
+The statusline now includes:
+- **CCR Detection**: Shows when routing through CCR vs direct Anthropic
+- **Real-time Usage**: Display actual token usage from current session
+- **Cost Tracking**: Show accumulated costs for the session
+- **Model Display**: Current model being used
+
+### Statusline API Endpoints
+- `GET /api/statusline/usage?sessionId=xxx` - Get real-time usage for statusline
+- `GET /api/statusline/detect` - Detect if CCR is active
 ![statusline-config.png](/blog/images/statusline-config.png)
 
 The effect is as follows:

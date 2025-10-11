@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>README</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css" />
+</head>
+<body>
+<p><img src="blog/images/claude-code-router-img.png" /></p>
+<p><a href="README_zh.md"><img
+src="https://img.shields.io/badge/%F0%9F%87%A8%F0%9F%87%B3-%E4%B8%AD%E6%96%87%E7%89%88-ff0000?style=flat" /></a>
+<a href="https://discord.gg/rdftVMaUcS"><img
+src="https://img.shields.io/badge/Discord-%235865F2.svg?&amp;logo=discord&amp;logoColor=white"
+alt="Discord" /></a> <a
+href="https://github.com/musistudio/claude-code-router/blob/main/LICENSE"><img
+src="https://img.shields.io/github/license/musistudio/claude-code-router" /></a></p>
+<hr>
+<p>I am seeking funding support for this project to better sustain its
+development. If you have any ideas, feel free to reach out to me: <a
+href="mailto:m@musiiot.top">m@musiiot.top</a></p>
+<blockquote>
+<p>A powerful tool to route Claude Code requests to different models and
+customize any request.</p>
+</blockquote>
+<blockquote>
+<p>Now you can use models such as <code>GLM-4.5</code>,
+<code>Kimi-K2</code>, <code>Qwen3-Coder-480B-A35B</code>, and
+<code>DeepSeek v3.1</code> for free through the <a
+href="https://platform.iflow.cn/docs/api-mode">iFlow Platform</a>.<br />
+You can use the <code>ccr ui</code> command to directly import the
+<code>iflow</code> template in the UI. It’s worth noting that iFlow
+limits each user to a concurrency of 1, which means you’ll need to route
+background requests to other models.<br />
+If you’d like a better experience, you can try <a
+href="https://cli.iflow.cn">iFlow CLI</a>.</p>
+</blockquote>
+<p><img src="blog/images/claude-code.png" /></p>
+<p><img src="blog/images/roadmap.svg" /></p>
+<h2 id="features">✨ Features</h2>
+<ul>
+<li><strong>Model Routing</strong>: Route requests to different models
+based on your needs (e.g., background tasks, thinking, long
+context).</li>
+<li><strong>Multi-Provider Support</strong>: Supports various model
+providers like OpenRouter, DeepSeek, Ollama, Gemini, Volcengine, and
+SiliconFlow.</li>
+<li><strong>Anthropic Subscription Support</strong>: Use your Anthropic
+Pro/Team subscription alongside API keys.</li>
+<li><strong>Token Usage Tracking</strong>: Persistent tracking of token
+usage with SQLite database.</li>
+<li><strong>Cost Analytics</strong>: Real-time cost calculation and
+analytics dashboard.</li>
+<li><strong>Statusline Integration</strong>: Real-time usage display
+with CCR detection.</li>
+<li><strong>Request/Response Transformation</strong>: Customize requests
+and responses for different providers using transformers.</li>
+<li><strong>Dynamic Model Switching</strong>: Switch models on-the-fly
+within Claude Code using the <code>/model</code> command.</li>
+<li><strong>GitHub Actions Integration</strong>: Trigger Claude Code
+tasks in your GitHub workflows.</li>
+<li><strong>Plugin System</strong>: Extend functionality with custom
+transformers.</li>
+<li><strong>Usage Export</strong>: Export usage data in CSV or JSON
+format for billing reconciliation.</li>
+</ul>
+<h2 id="getting-started">🚀 Getting Started</h2>
+<h3 id="installation">1. Installation</h3>
+<p>First, ensure you have <a
+href="https://docs.anthropic.com/en/docs/claude-code/quickstart">Claude
+Code</a> installed:</p>
+<pre class="shell"><code>npm install -g @anthropic-ai/claude-code</code></pre>
+<p>Then, install Claude Code Router:</p>
+<pre class="shell"><code>npm install -g @musistudio/claude-code-router</code></pre>
+<h3 id="configuration">2. Configuration</h3>
+<p>Create and configure your
+<code>~/.claude-code-router/config.json</code> file. For more details,
+you can refer to <code>config.example.json</code>.</p>
+<p>The <code>config.json</code> file has several key sections:</p>
+<ul>
+<li><p><strong><code>PROXY_URL</code></strong> (optional): You can set a
+proxy for API requests, for example:
+<code>"PROXY_URL": "http://127.0.0.1:7890"</code>.</p></li>
+<li><p><strong><code>LOG</code></strong> (optional): You can enable
+logging by setting it to <code>true</code>. When set to
+<code>false</code>, no log files will be created. Default is
+<code>true</code>.</p></li>
+<li><p><strong><code>LOG_LEVEL</code></strong> (optional): Set the
+logging level. Available options are: <code>"fatal"</code>,
+<code>"error"</code>, <code>"warn"</code>, <code>"info"</code>,
+<code>"debug"</code>, <code>"trace"</code>. Default is
+<code>"debug"</code>.</p></li>
+<li><p><strong>Logging Systems</strong>: The Claude Code Router uses two
+separate logging systems:</p>
+<ul>
+<li><strong>Server-level logs</strong>: HTTP requests, API calls, and
+server events are logged using pino in the
+<code>~/.claude-code-router/logs/</code> directory with filenames like
+<code>ccr-*.log</code></li>
+<li><strong>Application-level logs</strong>: Routing decisions and
+business logic events are logged in
+<code>~/.claude-code-router/claude-code-router.log</code></li>
+</ul></li>
+<li><p><strong><code>APIKEY</code></strong> (optional): You can set a
+secret key to authenticate requests. When set, clients must provide this
+key in the <code>Authorization</code> header (e.g.,
+<code>Bearer your-secret-key</code>) or the <code>x-api-key</code>
+header. Example: <code>"APIKEY": "your-secret-key"</code>.</p></li>
+<li><p><strong><code>HOST</code></strong> (optional): You can set the
+host address for the server. If <code>APIKEY</code> is not set, the host
+will be forced to <code>127.0.0.1</code> for security reasons to prevent
+unauthorized access. Example: <code>"HOST": "0.0.0.0"</code>.</p></li>
+<li><p><strong><code>NON_INTERACTIVE_MODE</code></strong> (optional):
+When set to <code>true</code>, enables compatibility with
+non-interactive environments like GitHub Actions, Docker containers, or
+other CI/CD systems. This sets appropriate environment variables
+(<code>CI=true</code>, <code>FORCE_COLOR=0</code>, etc.) and configures
+stdin handling to prevent the process from hanging in automated
+environments. Example:
+<code>"NON_INTERACTIVE_MODE": true</code>.</p></li>
+<li><p><strong><code>Providers</code></strong>: Used to configure
+different model providers.</p></li>
+<li><p><strong><code>Router</code></strong>: Used to set up routing
+rules. <code>default</code> specifies the default model, which will be
+used for all requests if no other route is configured.</p></li>
+<li><p><strong><code>API_TIMEOUT_MS</code></strong>: Specifies the
+timeout for API calls in milliseconds.</p></li>
+</ul>
+<h4 id="environment-variable-interpolation">Environment Variable
+Interpolation</h4>
+<p>Claude Code Router supports environment variable interpolation for
+secure API key management. You can reference environment variables in
+your <code>config.json</code> using either <code>$VAR_NAME</code> or
+<code>${VAR_NAME}</code> syntax:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;OPENAI_API_KEY&quot;</span><span class="fu">:</span> <span class="st">&quot;$OPENAI_API_KEY&quot;</span><span class="fu">,</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;GEMINI_API_KEY&quot;</span><span class="fu">:</span> <span class="st">&quot;${GEMINI_API_KEY}&quot;</span><span class="fu">,</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;Providers&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;openai&quot;</span><span class="fu">,</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;api_base_url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://api.openai.com/v1/chat/completions&quot;</span><span class="fu">,</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;api_key&quot;</span><span class="fu">:</span> <span class="st">&quot;$OPENAI_API_KEY&quot;</span><span class="fu">,</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;models&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;gpt-5&quot;</span><span class="ot">,</span> <span class="st">&quot;gpt-5-mini&quot;</span><span class="ot">]</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>This allows you to keep sensitive API keys in environment variables
+instead of hardcoding them in configuration files. The interpolation
+works recursively through nested objects and arrays.</p>
+<p>Here is a comprehensive example:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;APIKEY&quot;</span><span class="fu">:</span> <span class="st">&quot;your-secret-key&quot;</span><span class="fu">,</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;PROXY_URL&quot;</span><span class="fu">:</span> <span class="st">&quot;http://127.0.0.1:7890&quot;</span><span class="fu">,</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;LOG&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;API_TIMEOUT_MS&quot;</span><span class="fu">:</span> <span class="dv">600000</span><span class="fu">,</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;NON_INTERACTIVE_MODE&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;Providers&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;openrouter&quot;</span><span class="fu">,</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;api_base_url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://openrouter.ai/api/v1/chat/completions&quot;</span><span class="fu">,</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;api_key&quot;</span><span class="fu">:</span> <span class="st">&quot;sk-xxx&quot;</span><span class="fu">,</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;models&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;google/gemini-2.5-pro-preview&quot;</span><span class="ot">,</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;anthropic/claude-sonnet-4&quot;</span><span class="ot">,</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;anthropic/claude-3.5-sonnet&quot;</span><span class="ot">,</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;anthropic/claude-3.7-sonnet:thinking&quot;</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>      <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;transformer&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;use&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;openrouter&quot;</span><span class="ot">]</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;deepseek&quot;</span><span class="fu">,</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;api_base_url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://api.deepseek.com/chat/completions&quot;</span><span class="fu">,</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;api_key&quot;</span><span class="fu">:</span> <span class="st">&quot;sk-xxx&quot;</span><span class="fu">,</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;models&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;deepseek-chat&quot;</span><span class="ot">,</span> <span class="st">&quot;deepseek-reasoner&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;transformer&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;use&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;deepseek&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;deepseek-chat&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>          <span class="dt">&quot;use&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;tooluse&quot;</span><span class="ot">]</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;ollama&quot;</span><span class="fu">,</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;api_base_url&quot;</span><span class="fu">:</span> <span class="st">&quot;http://localhost:11434/v1/chat/completions&quot;</span><span class="fu">,</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;api_key&quot;</span><span class="fu">:</span> <span class="st">&quot;ollama&quot;</span><span class="fu">,</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;models&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;qwen2.5-coder:latest&quot;</span><span class="ot">]</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;gemini&quot;</span><span class="fu">,</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;api_base_url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://generativelanguage.googleapis.com/v1beta/models/&quot;</span><span class="fu">,</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;api_key&quot;</span><span class="fu">:</span> <span class="st">&quot;sk-xxx&quot;</span><span class="fu">,</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;models&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;gemini-2.5-flash&quot;</span><span class="ot">,</span> <span class="st">&quot;gemini-2.5-pro&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;transformer&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;use&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;gemini&quot;</span><span class="ot">]</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;volcengine&quot;</span><span class="fu">,</span></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;api_base_url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://ark.cn-beijing.volces.com/api/v3/chat/completions&quot;</span><span class="fu">,</span></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;api_key&quot;</span><span class="fu">:</span> <span class="st">&quot;sk-xxx&quot;</span><span class="fu">,</span></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;models&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;deepseek-v3-250324&quot;</span><span class="ot">,</span> <span class="st">&quot;deepseek-r1-250528&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;transformer&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;use&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;deepseek&quot;</span><span class="ot">]</span></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;modelscope&quot;</span><span class="fu">,</span></span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;api_base_url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://api-inference.modelscope.cn/v1/chat/completions&quot;</span><span class="fu">,</span></span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;api_key&quot;</span><span class="fu">:</span> <span class="st">&quot;&quot;</span><span class="fu">,</span></span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;models&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;Qwen/Qwen3-Coder-480B-A35B-Instruct&quot;</span><span class="ot">,</span> <span class="st">&quot;Qwen/Qwen3-235B-A22B-Thinking-2507&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;transformer&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;use&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>          <span class="ot">[</span></span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;maxtoken&quot;</span><span class="ot">,</span></span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>            <span class="fu">{</span></span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>              <span class="dt">&quot;max_tokens&quot;</span><span class="fu">:</span> <span class="dv">65536</span></span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>            <span class="fu">}</span></span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>          <span class="ot">],</span></span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>          <span class="st">&quot;enhancetool&quot;</span></span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>        <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;Qwen/Qwen3-235B-A22B-Thinking-2507&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>          <span class="dt">&quot;use&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;reasoning&quot;</span><span class="ot">]</span></span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;dashscope&quot;</span><span class="fu">,</span></span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;api_base_url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions&quot;</span><span class="fu">,</span></span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;api_key&quot;</span><span class="fu">:</span> <span class="st">&quot;&quot;</span><span class="fu">,</span></span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;models&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;qwen3-coder-plus&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;transformer&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;use&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a>          <span class="ot">[</span></span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;maxtoken&quot;</span><span class="ot">,</span></span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a>            <span class="fu">{</span></span>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a>              <span class="dt">&quot;max_tokens&quot;</span><span class="fu">:</span> <span class="dv">65536</span></span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a>            <span class="fu">}</span></span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a>          <span class="ot">],</span></span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a>          <span class="st">&quot;enhancetool&quot;</span></span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a>        <span class="ot">]</span></span>
+<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;aihubmix&quot;</span><span class="fu">,</span></span>
+<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;api_base_url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://aihubmix.com/v1/chat/completions&quot;</span><span class="fu">,</span></span>
+<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;api_key&quot;</span><span class="fu">:</span> <span class="st">&quot;sk-&quot;</span><span class="fu">,</span></span>
+<span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;models&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Z/glm-4.5&quot;</span><span class="ot">,</span></span>
+<span id="cb4-101"><a href="#cb4-101" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;claude-opus-4-20250514&quot;</span><span class="ot">,</span></span>
+<span id="cb4-102"><a href="#cb4-102" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;gemini-2.5-pro&quot;</span></span>
+<span id="cb4-103"><a href="#cb4-103" aria-hidden="true" tabindex="-1"></a>      <span class="ot">]</span></span>
+<span id="cb4-104"><a href="#cb4-104" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb4-105"><a href="#cb4-105" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb4-106"><a href="#cb4-106" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;Router&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb4-107"><a href="#cb4-107" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;default&quot;</span><span class="fu">:</span> <span class="st">&quot;deepseek,deepseek-chat&quot;</span><span class="fu">,</span></span>
+<span id="cb4-108"><a href="#cb4-108" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;background&quot;</span><span class="fu">:</span> <span class="st">&quot;ollama,qwen2.5-coder:latest&quot;</span><span class="fu">,</span></span>
+<span id="cb4-109"><a href="#cb4-109" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;think&quot;</span><span class="fu">:</span> <span class="st">&quot;deepseek,deepseek-reasoner&quot;</span><span class="fu">,</span></span>
+<span id="cb4-110"><a href="#cb4-110" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;longContext&quot;</span><span class="fu">:</span> <span class="st">&quot;openrouter,google/gemini-2.5-pro-preview&quot;</span><span class="fu">,</span></span>
+<span id="cb4-111"><a href="#cb4-111" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;longContextThreshold&quot;</span><span class="fu">:</span> <span class="dv">60000</span><span class="fu">,</span></span>
+<span id="cb4-112"><a href="#cb4-112" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;webSearch&quot;</span><span class="fu">:</span> <span class="st">&quot;gemini,gemini-2.5-flash&quot;</span></span>
+<span id="cb4-113"><a href="#cb4-113" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb4-114"><a href="#cb4-114" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<h3 id="running-claude-code-with-the-router">3. Running Claude Code with
+the Router</h3>
+<p>Start Claude Code using the router:</p>
+<pre class="shell"><code>ccr code</code></pre>
+<blockquote>
+<p><strong>Note</strong>: After modifying the configuration file, you
+need to restart the service for the changes to take effect:</p>
+<pre class="shell"><code>ccr restart</code></pre>
+</blockquote>
+<h3 id="ui-mode">4. UI Mode</h3>
+<p>For a more intuitive experience, you can use the UI mode to manage
+your configuration:</p>
+<pre class="shell"><code>ccr ui</code></pre>
+<p>This will open a web-based interface where you can easily view and
+edit your <code>config.json</code> file.</p>
+<figure>
+<img src="/blog/images/ui.png" alt="UI" />
+<figcaption aria-hidden="true">UI</figcaption>
+</figure>
+<h4 id="providers">Providers</h4>
+<p>The <code>Providers</code> array is where you define the different
+model providers you want to use. Each provider object requires:</p>
+<ul>
+<li><code>name</code>: A unique name for the provider.</li>
+<li><code>api_base_url</code>: The full API endpoint for chat
+completions.</li>
+<li><code>api_key</code>: Your API key for the provider (for API-based
+access).</li>
+<li><code>auth_type</code> (optional): Authentication type -
+<code>"api_key"</code> or <code>"subscription"</code> (for
+Anthropic).</li>
+<li><code>auth_token</code> (optional): Authentication token for
+subscription-based access.</li>
+<li><code>models</code>: A list of model names available from this
+provider.</li>
+<li><code>transformer</code> (optional): Specifies transformers to
+process requests and responses.</li>
+</ul>
+<h5 id="anthropic-subscription-support">Anthropic Subscription
+Support</h5>
+<p>You can now use your Anthropic Pro/Team subscription alongside API
+keys:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;Providers&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;anthropic-subscription&quot;</span><span class="fu">,</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;api_base_url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://api.anthropic.com/v1/messages&quot;</span><span class="fu">,</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;auth_type&quot;</span><span class="fu">:</span> <span class="st">&quot;subscription&quot;</span><span class="fu">,</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;auth_token&quot;</span><span class="fu">:</span> <span class="st">&quot;YOUR_ANTHROPIC_AUTH_TOKEN&quot;</span><span class="fu">,</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;models&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;claude-opus-4&quot;</span><span class="ot">,</span> <span class="st">&quot;claude-sonnet-4&quot;</span><span class="ot">,</span> <span class="st">&quot;claude-3.5-haiku&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;transformer&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;use&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;anthropic&quot;</span><span class="ot">]</span> <span class="fu">}</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;anthropic-api&quot;</span><span class="fu">,</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;api_base_url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://api.anthropic.com/v1/messages&quot;</span><span class="fu">,</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;auth_type&quot;</span><span class="fu">:</span> <span class="st">&quot;api_key&quot;</span><span class="fu">,</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;api_key&quot;</span><span class="fu">:</span> <span class="st">&quot;sk-ant-api03-...&quot;</span><span class="fu">,</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;models&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;claude-opus-4&quot;</span><span class="ot">,</span> <span class="st">&quot;claude-sonnet-4&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;transformer&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;use&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;anthropic&quot;</span><span class="ot">]</span> <span class="fu">}</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<h4 id="transformers">Transformers</h4>
+<p>Transformers allow you to modify the request and response payloads to
+ensure compatibility with different provider APIs.</p>
+<ul>
+<li><p><strong>Global Transformer</strong>: Apply a transformer to all
+models from a provider. In this example, the <code>openrouter</code>
+transformer is applied to all models under the <code>openrouter</code>
+provider.</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;openrouter&quot;</span><span class="fu">,</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;api_base_url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://openrouter.ai/api/v1/chat/completions&quot;</span><span class="fu">,</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;api_key&quot;</span><span class="fu">:</span> <span class="st">&quot;sk-xxx&quot;</span><span class="fu">,</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;models&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;google/gemini-2.5-pro-preview&quot;</span><span class="ot">,</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;anthropic/claude-sonnet-4&quot;</span><span class="ot">,</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;anthropic/claude-3.5-sonnet&quot;</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;transformer&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;use&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;openrouter&quot;</span><span class="ot">]</span> <span class="fu">}</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div></li>
+<li><p><strong>Model-Specific Transformer</strong>: Apply a transformer
+to a specific model. In this example, the <code>deepseek</code>
+transformer is applied to all models, and an additional
+<code>tooluse</code> transformer is applied only to the
+<code>deepseek-chat</code> model.</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;deepseek&quot;</span><span class="fu">,</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;api_base_url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://api.deepseek.com/chat/completions&quot;</span><span class="fu">,</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;api_key&quot;</span><span class="fu">:</span> <span class="st">&quot;sk-xxx&quot;</span><span class="fu">,</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;models&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;deepseek-chat&quot;</span><span class="ot">,</span> <span class="st">&quot;deepseek-reasoner&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;transformer&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;use&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;deepseek&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;deepseek-chat&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;use&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;tooluse&quot;</span><span class="ot">]</span> <span class="fu">}</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div></li>
+<li><p><strong>Passing Options to a Transformer</strong>: Some
+transformers, like <code>maxtoken</code>, accept options. To pass
+options, use a nested array where the first element is the transformer
+name and the second is an options object.</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;siliconflow&quot;</span><span class="fu">,</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;api_base_url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://api.siliconflow.cn/v1/chat/completions&quot;</span><span class="fu">,</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;api_key&quot;</span><span class="fu">:</span> <span class="st">&quot;sk-xxx&quot;</span><span class="fu">,</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;models&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;moonshotai/Kimi-K2-Instruct&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;transformer&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;use&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>      <span class="ot">[</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;maxtoken&quot;</span><span class="ot">,</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>          <span class="dt">&quot;max_tokens&quot;</span><span class="fu">:</span> <span class="dv">16384</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>      <span class="ot">]</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div></li>
+</ul>
+<p><strong>Available Built-in Transformers:</strong></p>
+<ul>
+<li><p><code>Anthropic</code>:If you use only the <code>Anthropic</code>
+transformer, it will preserve the original request and response
+parameters(you can use it to connect directly to an Anthropic
+endpoint).</p></li>
+<li><p><code>deepseek</code>: Adapts requests/responses for DeepSeek
+API.</p></li>
+<li><p><code>gemini</code>: Adapts requests/responses for Gemini
+API.</p></li>
+<li><p><code>openrouter</code>: Adapts requests/responses for OpenRouter
+API. It can also accept a <code>provider</code> routing parameter to
+specify which underlying providers OpenRouter should use. For more
+details, refer to the <a
+href="https://openrouter.ai/docs/features/provider-routing">OpenRouter
+documentation</a>. See an example below:</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>  <span class="er">&quot;transformer&quot;:</span> <span class="fu">{</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;use&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;openrouter&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;moonshotai/kimi-k2&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;use&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>        <span class="ot">[</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>          <span class="st">&quot;openrouter&quot;</span><span class="ot">,</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>          <span class="fu">{</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;provider&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>              <span class="dt">&quot;only&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;moonshotai/fp8&quot;</span><span class="ot">]</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>            <span class="fu">}</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>          <span class="fu">}</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>        <span class="ot">]</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>      <span class="ot">]</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span></code></pre></div></li>
+<li><p><code>groq</code>: Adapts requests/responses for groq
+API.</p></li>
+<li><p><code>maxtoken</code>: Sets a specific <code>max_tokens</code>
+value.</p></li>
+<li><p><code>tooluse</code>: Optimizes tool usage for certain models via
+<code>tool_choice</code>.</p></li>
+<li><p><code>gemini-cli</code> (experimental): Unofficial support for
+Gemini via Gemini CLI <a
+href="https://gist.github.com/musistudio/1c13a65f35916a7ab690649d3df8d1cd">gemini-cli.js</a>.</p></li>
+<li><p><code>reasoning</code>: Used to process the
+<code>reasoning_content</code> field.</p></li>
+<li><p><code>sampling</code>: Used to process sampling information
+fields such as <code>temperature</code>, <code>top_p</code>,
+<code>top_k</code>, and <code>repetition_penalty</code>.</p></li>
+<li><p><code>enhancetool</code>: Adds a layer of error tolerance to the
+tool call parameters returned by the LLM (this will cause the tool call
+information to no longer be streamed).</p></li>
+<li><p><code>cleancache</code>: Clears the <code>cache_control</code>
+field from requests.</p></li>
+<li><p><code>vertex-gemini</code>: Handles the Gemini API using Vertex
+authentication.</p></li>
+<li><p><code>chutes-glm</code> Unofficial support for GLM 4.5 model via
+Chutes <a
+href="https://gist.github.com/vitobotta/2be3f33722e05e8d4f9d2b0138b8c863">chutes-glm-transformer.js</a>.</p></li>
+<li><p><code>qwen-cli</code> (experimental): Unofficial support for
+qwen3-coder-plus model via Qwen CLI <a
+href="https://gist.github.com/musistudio/f5a67841ced39912fd99e42200d5ca8b">qwen-cli.js</a>.</p></li>
+<li><p><code>rovo-cli</code> (experimental): Unofficial support for
+gpt-5 via Atlassian Rovo Dev CLI <a
+href="https://gist.github.com/SaseQ/c2a20a38b11276537ec5332d1f7a5e53">rovo-cli.js</a>.</p></li>
+</ul>
+<p><strong>Custom Transformers:</strong></p>
+<p>You can also create your own transformers and load them via the
+<code>transformers</code> field in <code>config.json</code>.</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;transformers&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;path&quot;</span><span class="fu">:</span> <span class="st">&quot;/User/xxx/.claude-code-router/plugins/gemini-cli.js&quot;</span><span class="fu">,</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;options&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;project&quot;</span><span class="fu">:</span> <span class="st">&quot;xxx&quot;</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<h4 id="router">Router</h4>
+<p>The <code>Router</code> object defines which model to use for
+different scenarios:</p>
+<ul>
+<li><p><code>default</code>: The default model for general
+tasks.</p></li>
+<li><p><code>background</code>: A model for background tasks. This can
+be a smaller, local model to save costs.</p></li>
+<li><p><code>think</code>: A model for reasoning-heavy tasks, like Plan
+Mode.</p></li>
+<li><p><code>longContext</code>: A model for handling long contexts
+(e.g., &gt; 60K tokens).</p></li>
+<li><p><code>longContextThreshold</code> (optional): The token count
+threshold for triggering the long context model. Defaults to 60000 if
+not specified.</p></li>
+<li><p><code>webSearch</code>: Used for handling web search tasks and
+this requires the model itself to support the feature. If you’re using
+openrouter, you need to add the <code>:online</code> suffix after the
+model name.</p></li>
+<li><p><code>image</code> (beta): Used for handling image-related tasks
+(supported by CCR’s built-in agent). If the model does not support tool
+calling, you need to set the <code>config.forceUseImageAgent</code>
+property to <code>true</code>.</p></li>
+<li><p>You can also switch models dynamically in Claude Code with the
+<code>/model</code> command:
+<code>/model provider_name,model_name</code> Example:
+<code>/model openrouter,anthropic/claude-3.5-sonnet</code></p></li>
+</ul>
+<h4 id="custom-router">Custom Router</h4>
+<p>For more advanced routing logic, you can specify a custom router
+script via the <code>CUSTOM_ROUTER_PATH</code> in your
+<code>config.json</code>. This allows you to implement complex routing
+rules beyond the default scenarios.</p>
+<p>In your <code>config.json</code>:</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;CUSTOM_ROUTER_PATH&quot;</span><span class="fu">:</span> <span class="st">&quot;/User/xxx/.claude-code-router/custom-router.js&quot;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>The custom router file must be a JavaScript module that exports an
+<code>async</code> function. This function receives the request object
+and the config object as arguments and should return the provider and
+model name as a string (e.g., <code>"provider_name,model_name"</code>),
+or <code>null</code> to fall back to the default router.</p>
+<p>Here is an example of a <code>custom-router.js</code> based on
+<code>custom-router.example.js</code>:</p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">// /User/xxx/.claude-code-router/custom-router.js</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">/**</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"> * A custom router function to determine which model to use based on the request.</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co"> *</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co"> * </span><span class="an">@param</span><span class="co"> </span><span class="cv">{object}</span><span class="co"> req - The request object from Claude Code, containing the request body.</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co"> * </span><span class="an">@param</span><span class="co"> </span><span class="cv">{object}</span><span class="co"> config - The application&#39;s config object.</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co"> * </span><span class="an">@returns</span><span class="co"> {Promise</span><span class="kw">&lt;string</span><span class="ot">|null</span><span class="kw">&gt;</span><span class="co">} - A promise that resolves to the &quot;provider,model_name&quot; string, or null to use the default router.</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co"> */</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>module<span class="op">.</span><span class="at">exports</span> <span class="op">=</span> <span class="kw">async</span> <span class="kw">function</span> <span class="fu">router</span>(req<span class="op">,</span> config) {</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> userMessage <span class="op">=</span> req<span class="op">.</span><span class="at">body</span><span class="op">.</span><span class="at">messages</span><span class="op">.</span><span class="fu">find</span>((m) <span class="kw">=&gt;</span> m<span class="op">.</span><span class="at">role</span> <span class="op">===</span> <span class="st">&quot;user&quot;</span>)<span class="op">?.</span><span class="at">content</span><span class="op">;</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (userMessage <span class="op">&amp;&amp;</span> userMessage<span class="op">.</span><span class="fu">includes</span>(<span class="st">&quot;explain this code&quot;</span>)) {</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Use a powerful model for code explanation</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">&quot;openrouter,anthropic/claude-3.5-sonnet&quot;</span><span class="op">;</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Fallback to the default router configuration</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">null</span><span class="op">;</span></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>}<span class="op">;</span></span></code></pre></div>
+<h5 id="subagent-routing">Subagent Routing</h5>
+<p>For routing within subagents, you must specify a particular provider
+and model by including
+<code>&lt;CCR-SUBAGENT-MODEL&gt;provider,model&lt;/CCR-SUBAGENT-MODEL&gt;</code>
+at the <strong>beginning</strong> of the subagent’s prompt. This allows
+you to direct specific subagent tasks to designated models.</p>
+<p><strong>Example:</strong></p>
+<pre><code>&lt;CCR-SUBAGENT-MODEL&gt;openrouter,anthropic/claude-3.5-sonnet&lt;/CCR-SUBAGENT-MODEL&gt;
+Please help me analyze this code snippet for potential optimizations...</code></pre>
+<h2 id="usage-tracking-analytics">📊 Usage Tracking &amp; Analytics</h2>
+<p>Claude Code Router now includes comprehensive usage tracking and cost
+analytics:</p>
+<h3 id="features-1">Features</h3>
+<ul>
+<li><strong>Persistent Storage</strong>: SQLite database stores all
+usage data locally</li>
+<li><strong>Real-time Tracking</strong>: Every request is tracked with
+input/output tokens</li>
+<li><strong>Cost Calculation</strong>: Automatic cost calculation based
+on model pricing</li>
+<li><strong>Analytics Dashboard</strong>: Visual dashboard in the UI for
+usage analysis</li>
+<li><strong>Export Functionality</strong>: Export usage data as CSV or
+JSON</li>
+</ul>
+<h3 id="accessing-the-dashboard">Accessing the Dashboard</h3>
+<ol type="1">
+<li>Open the UI: <code>ccr ui</code></li>
+<li>Navigate to the Usage tab</li>
+<li>View analytics, filter by date range, and export data</li>
+</ol>
+<h3 id="api-endpoints">API Endpoints</h3>
+<ul>
+<li><code>GET /api/usage/summary</code> - Usage summary with cost
+breakdown</li>
+<li><code>GET /api/usage/details</code> - Detailed usage records</li>
+<li><code>GET /api/usage/export?format=csv</code> - Export usage
+data</li>
+<li><code>GET /api/costs/models</code> - View/update model pricing</li>
+</ul>
+<h3 id="database-location">Database Location</h3>
+<p>Usage data is stored in
+<code>~/.claude-code-router/usage.db</code></p>
+<h2 id="status-line-beta">Status Line (Beta)</h2>
+<p>To better monitor the status of claude-code-router at runtime,
+version v1.0.40 includes a built-in statusline tool, which you can
+enable in the UI.</p>
+<h3 id="enhanced-statusline-integration">Enhanced Statusline
+Integration</h3>
+<p>The statusline now includes: - <strong>CCR Detection</strong>: Shows
+when routing through CCR vs direct Anthropic - <strong>Real-time
+Usage</strong>: Display actual token usage from current session -
+<strong>Cost Tracking</strong>: Show accumulated costs for the session -
+<strong>Model Display</strong>: Current model being used</p>
+<h3 id="statusline-api-endpoints">Statusline API Endpoints</h3>
+<ul>
+<li><code>GET /api/statusline/usage?sessionId=xxx</code> - Get real-time
+usage for statusline</li>
+<li><code>GET /api/statusline/detect</code> - Detect if CCR is active
+<img src="/blog/images/statusline-config.png"
+alt="statusline-config.png" /></li>
+</ul>
+<p>The effect is as follows: <img src="/blog/images/statusline.png"
+alt="statusline" /></p>
+<h2 id="github-actions">🤖 GitHub Actions</h2>
+<p>Integrate Claude Code Router into your CI/CD pipeline. After setting
+up <a
+href="https://docs.anthropic.com/en/docs/claude-code/github-actions">Claude
+Code Actions</a>, modify your <code>.github/workflows/claude.yaml</code>
+to use the router:</p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> Claude Code</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">on</span><span class="kw">:</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">issue_comment</span><span class="kw">:</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">types</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">created</span><span class="kw">]</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co">  # ... other triggers</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="fu">jobs</span><span class="kw">:</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">claude</span><span class="kw">:</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="fu">    if</span><span class="kw">: </span><span class="ch">|</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>      (github.event_name == &#39;issue_comment&#39; &amp;&amp; contains(github.event.comment.body, &#39;@claude&#39;)) ||</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>      # ... other conditions</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">runs-on</span><span class="kw">:</span><span class="at"> ubuntu-latest</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">permissions</span><span class="kw">:</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">contents</span><span class="kw">:</span><span class="at"> read</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">pull-requests</span><span class="kw">:</span><span class="at"> read</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">issues</span><span class="kw">:</span><span class="at"> read</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">id-token</span><span class="kw">:</span><span class="at"> write</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">steps</span><span class="kw">:</span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Checkout repository</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> actions/checkout@v4</span></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">with</span><span class="kw">:</span></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">fetch-depth</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Prepare Environment</span></span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a><span class="fu">        run</span><span class="kw">: </span><span class="ch">|</span></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>          curl -fsSL https://bun.sh/install | bash</span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>          mkdir -p $HOME/.claude-code-router</span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>          cat &lt;&lt; &#39;EOF&#39; &gt; $HOME/.claude-code-router/config.json</span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>          {</span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>            &quot;log&quot;: true,</span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>            &quot;NON_INTERACTIVE_MODE&quot;: true,</span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>            &quot;OPENAI_API_KEY&quot;: &quot;${{ secrets.OPENAI_API_KEY }}&quot;,</span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>            &quot;OPENAI_BASE_URL&quot;: &quot;https://api.deepseek.com&quot;,</span>
+<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>            &quot;OPENAI_MODEL&quot;: &quot;deepseek-chat&quot;</span>
+<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a>          }</span>
+<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a>          EOF</span>
+<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">shell</span><span class="kw">:</span><span class="at"> bash</span></span>
+<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Start Claude Code Router</span></span>
+<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a><span class="fu">        run</span><span class="kw">: </span><span class="ch">|</span></span>
+<span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a>          nohup ~/.bun/bin/bunx @musistudio/claude-code-router@1.0.8 start &amp;</span>
+<span id="cb17-43"><a href="#cb17-43" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">shell</span><span class="kw">:</span><span class="at"> bash</span></span>
+<span id="cb17-44"><a href="#cb17-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-45"><a href="#cb17-45" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Run Claude Code</span></span>
+<span id="cb17-46"><a href="#cb17-46" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">id</span><span class="kw">:</span><span class="at"> claude</span></span>
+<span id="cb17-47"><a href="#cb17-47" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> anthropics/claude-code-action@beta</span></span>
+<span id="cb17-48"><a href="#cb17-48" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">env</span><span class="kw">:</span></span>
+<span id="cb17-49"><a href="#cb17-49" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">ANTHROPIC_BASE_URL</span><span class="kw">:</span><span class="at"> http://localhost:3456</span></span>
+<span id="cb17-50"><a href="#cb17-50" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">with</span><span class="kw">:</span></span>
+<span id="cb17-51"><a href="#cb17-51" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">anthropic_api_key</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;any-string-is-ok&quot;</span></span></code></pre></div>
+<blockquote>
+<p><strong>Note</strong>: When running in GitHub Actions or other
+automation environments, make sure to set
+<code>"NON_INTERACTIVE_MODE": true</code> in your configuration to
+prevent the process from hanging due to stdin handling issues.</p>
+</blockquote>
+<p>This setup allows for interesting automations, like running tasks
+during off-peak hours to reduce API costs.</p>
+<h2 id="further-reading">📝 Further Reading</h2>
+<ul>
+<li><a href="blog/en/project-motivation-and-how-it-works.md">Project
+Motivation and How It Works</a></li>
+<li><a href="blog/en/maybe-we-can-do-more-with-the-route.md">Maybe We
+Can Do More with the Router</a></li>
+</ul>
+<h2 id="support-sponsoring">❤️ Support &amp; Sponsoring</h2>
+<p>If you find this project helpful, please consider sponsoring its
+development. Your support is greatly appreciated!</p>
+<p><a href="https://ko-fi.com/F1F31GN2GM"><img
+src="https://ko-fi.com/img/githubbutton_sm.svg" alt="ko-fi" /></a></p>
+<p><a href="https://paypal.me/musistudio1999">Paypal</a></p>
+<table>
+<tr>
+<td>
+<img src="/blog/images/alipay.jpg" width="200" alt="Alipay" />
+</td>
+<td>
+<img src="/blog/images/wechat.jpg" width="200" alt="WeChat Pay" />
+</td>
+</tr>
+</table>
+<h3 id="our-sponsors">Our Sponsors</h3>
+<p>A huge thank you to all our sponsors for their generous support!</p>
+<ul>
+<li><a href="https://aihubmix.com/">AIHubmix</a></li>
+<li><a href="https://ai.burncloud.com">BurnCloud</a></li>
+<li><span class="citation" data-cites="Simon">@Simon</span>
+Leischnig</li>
+<li><a href="https://github.com/duanshuaimin"><span class="citation"
+data-cites="duanshuaimin">@duanshuaimin</span></a></li>
+<li><a href="https://github.com/vrgitadmin"><span class="citation"
+data-cites="vrgitadmin">@vrgitadmin</span></a></li>
+<li>@*o</li>
+<li><a href="https://github.com/ceilwoo"><span class="citation"
+data-cites="ceilwoo">@ceilwoo</span></a></li>
+<li>@*说</li>
+<li>@*更</li>
+<li><span class="citation" data-cites="K">@K</span>*g</li>
+<li><span class="citation" data-cites="R">@R</span>*R</li>
+<li><a href="https://github.com/bobleer"><span class="citation"
+data-cites="bobleer">@bobleer</span></a></li>
+<li>@*苗</li>
+<li>@*划</li>
+<li><a href="https://github.com/Clarence-pan"><span class="citation"
+data-cites="Clarence-pan">@Clarence-pan</span></a></li>
+<li><a href="https://github.com/carter003"><span class="citation"
+data-cites="carter003">@carter003</span></a></li>
+<li><span class="citation" data-cites="S">@S</span>*r</li>
+<li>@*晖</li>
+<li>@*敏</li>
+<li><span class="citation" data-cites="Z">@Z</span>*z</li>
+<li>@*然</li>
+<li><a href="https://github.com/cluic"><span class="citation"
+data-cites="cluic">@cluic</span></a></li>
+<li>@*苗</li>
+<li><a href="https://github.com/PromptExpert"><span class="citation"
+data-cites="PromptExpert">@PromptExpert</span></a></li>
+<li>@*应</li>
+<li><a href="https://github.com/yusnake"><span class="citation"
+data-cites="yusnake">@yusnake</span></a></li>
+<li>@*飞</li>
+<li><span class="citation" data-cites="董">@董</span>*</li>
+<li>@*汀</li>
+<li>@*涯</li>
+<li>@*:-）</li>
+<li>@**磊</li>
+<li>@*琢</li>
+<li>@*成</li>
+<li><span class="citation" data-cites="Z">@Z</span>*o</li>
+<li>@*琨</li>
+<li><a href="https://github.com/congzhangzh"><span class="citation"
+data-cites="congzhangzh">@congzhangzh</span></a></li>
+<li>@*_</li>
+<li><span class="citation" data-cites="Z">@Z</span>*m</li>
+<li><span class="citation" data-cites="*鑫">@*鑫</span></li>
+<li><span class="citation" data-cites="c">@c</span>*y</li>
+<li>@*昕</li>
+<li><a href="https://github.com/witsice"><span class="citation"
+data-cites="witsice">@witsice</span></a></li>
+<li><span class="citation" data-cites="b">@b</span>*g</li>
+<li>@*亿</li>
+<li>@*辉</li>
+<li><span class="citation" data-cites="JACK">@JACK</span></li>
+<li>@*光</li>
+<li><span class="citation" data-cites="W">@W</span>*l</li>
+<li><a href="https://github.com/kesku"><span class="citation"
+data-cites="kesku">@kesku</span></a></li>
+<li><a href="https://github.com/biguncle"><span class="citation"
+data-cites="biguncle">@biguncle</span></a></li>
+<li><span class="citation" data-cites="二吉吉">@二吉吉</span></li>
+<li><span class="citation" data-cites="a">@a</span>*g</li>
+<li>@*林</li>
+<li>@*咸</li>
+<li>@*明</li>
+<li><span class="citation" data-cites="S">@S</span>*y</li>
+<li><span class="citation" data-cites="f">@f</span>*o</li>
+<li>@*智</li>
+<li><span class="citation" data-cites="F">@F</span>*t</li>
+<li><span class="citation" data-cites="r">@r</span>*c</li>
+<li><a href="http://github.com/qierkang"><span class="citation"
+data-cites="qierkang">@qierkang</span></a></li>
+<li>@*军</li>
+<li><a href="http://github.com/snrise-z"><span class="citation"
+data-cites="snrise-z">@snrise-z</span></a></li>
+<li>@*王</li>
+<li><a href="http://github.com/greatheart1000"><span class="citation"
+data-cites="greatheart1000">@greatheart1000</span></a></li>
+<li>@*王</li>
+<li><span class="citation" data-cites="zcutlip">@zcutlip</span></li>
+<li><a href="http://github.com/Peng-YM"><span class="citation"
+data-cites="Peng-YM">@Peng-YM</span></a></li>
+<li>@*更</li>
+<li>@*.</li>
+<li><span class="citation" data-cites="F">@F</span>*t</li>
+<li>@*政</li>
+<li>@*铭</li>
+<li>@*叶</li>
+</ul>
+<p>(If your name is masked, please contact me via my homepage email to
+update it with your GitHub username.)</p>
+</body>
+</html>

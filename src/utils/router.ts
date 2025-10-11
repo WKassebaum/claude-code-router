@@ -6,6 +6,7 @@ import {
 import { get_encoding } from "tiktoken";
 import { sessionUsageCache, Usage } from "./cache";
 import { readFile } from 'fs/promises'
+import { filterAndSimplifyTools, needsToolFiltering } from "./toolSchemaSimplifier";
 
 const enc = get_encoding("cl100k_base");
 
@@ -69,6 +70,21 @@ const getUseModel = async (
   config: any,
   lastUsage?: Usage | undefined
 ) => {
+  // Handle CCR router models
+  if (req.body.model.startsWith("ccr-")) {
+    const routerType = req.body.model.replace("ccr-", "").replace("-", "");
+    if (config.Router && config.Router[routerType]) {
+      req.log.info(`Using CCR router model: ${req.body.model} -> ${config.Router[routerType]}`);
+      return config.Router[routerType];
+    } else if (routerType === "default" && config.Router?.default) {
+      return config.Router.default;
+    } else if (routerType === "longcontext" && config.Router?.longContext) {
+      return config.Router.longContext;
+    } else if (routerType === "websearch" && config.Router?.webSearch) {
+      return config.Router.webSearch;
+    }
+  }
+
   if (req.body.model.includes(",")) {
     const [provider, model] = req.body.model.split(",");
     const finalProvider = config.Providers.find(
@@ -81,6 +97,16 @@ const getUseModel = async (
       return `${finalProvider.name},${finalModel}`;
     }
     return req.body.model;
+  }
+
+  // Find model in providers and return if found
+  if (config.Providers && Array.isArray(config.Providers)) {
+    for (const provider of config.Providers) {
+      if (provider.models && Array.isArray(provider.models) && provider.models.find((m: string) => m.toLowerCase() === req.body.model.toLowerCase())) {
+        req.log.info(`Found model '${req.body.model}' in provider '${provider.name}'`);
+        return `${provider.name},${req.body.model}`;
+      }
+    }
   }
 
   // if tokenCount is greater than the configured threshold, use the long context model
@@ -148,7 +174,7 @@ export const router = async (req: any, _res: any, context: any) => {
   }
   const lastMessageUsage = sessionUsageCache.get(req.sessionId);
   const { messages, system = [], tools }: MessageCreateParamsBase = req.body;
-  if (config.REWRITE_SYSTEM_PROMPT && system.length > 1 && system[1]?.text?.includes('<env>')) {
+  if (config.REWRITE_SYSTEM_PROMPT && Array.isArray(system) && system.length > 1 && typeof system[1] === 'object' && 'text' in system[1] && system[1].text?.includes('<env>')) {
     const prompt = await readFile(config.REWRITE_SYSTEM_PROMPT, 'utf-8');
     system[1].text = `${prompt}<env>${system[1].text.split('<env>').pop()}`
   }
@@ -176,6 +202,22 @@ export const router = async (req: any, _res: any, context: any) => {
       model = await getUseModel(req, tokenCount, config, lastMessageUsage);
     }
     req.body.model = model;
+
+    // Update session cache with actual routed model
+    const existingUsage = sessionUsageCache.get(req.sessionId) || { input_tokens: 0, output_tokens: 0 };
+    const [provider, routedModel] = model.split(',');
+    sessionUsageCache.put(req.sessionId, {
+      ...existingUsage,
+      model: routedModel,
+      provider,
+      route: model,
+      timestamp: new Date().toISOString()
+    });
+
+    // Apply tool filtering and simplification based on provider limitations
+    if (needsToolFiltering(model) && req.body.tools) {
+      req.body.tools = filterAndSimplifyTools(req.body.tools, model, req);
+    }
   } catch (error: any) {
     req.log.error(`Error in router middleware: ${error.message}`);
     req.body.model = config.Router!.default;

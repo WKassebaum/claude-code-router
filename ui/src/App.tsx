@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { UsageDashboard } from "./components/UsageDashboard";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { SettingsDialog } from "@/components/SettingsDialog";
@@ -10,7 +11,7 @@ import { LogViewer } from "@/components/LogViewer";
 import { Button } from "@/components/ui/button";
 import { useConfig } from "@/components/ConfigProvider";
 import { api } from "@/lib/api";
-import { Settings, Languages, Save, RefreshCw, FileJson, CircleArrowUp, FileText } from "lucide-react";
+import { Settings, Languages, Save, RefreshCw, FileJson, CircleArrowUp, FileText, BarChart3 } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -34,6 +35,7 @@ function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isJsonEditorOpen, setIsJsonEditorOpen] = useState(false);
   const [isLogViewerOpen, setIsLogViewerOpen] = useState(false);
+  const [isUsageOpen, setIsUsageOpen] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'warning' } | null>(null);
   // 版本检查状态
@@ -275,6 +277,9 @@ function App() {
           <Button variant="ghost" size="icon" onClick={() => setIsSettingsOpen(true)} className="transition-all-ease hover:scale-110">
             <Settings className="h-5 w-5" />
           </Button>
+          <Button variant="ghost" size="icon" onClick={() => setIsUsageOpen(!isUsageOpen)} className="transition-all-ease hover:scale-110">
+            <BarChart3 className="h-5 w-5" />
+          </Button>
           <Button variant="ghost" size="icon" onClick={() => setIsJsonEditorOpen(true)} className="transition-all-ease hover:scale-110">
             <FileJson className="h-5 w-5" />
           </Button>
@@ -336,19 +341,25 @@ function App() {
           </Button>
         </div>
       </header>
-      <main className="flex h-[calc(100vh-4rem)] gap-4 p-4 overflow-hidden">
-        <div className="w-3/5">
-          <Providers />
+      {isUsageOpen ? (
+        <div className="flex-1 p-4 overflow-auto">
+          <UsageDashboard />
         </div>
-        <div className="flex w-2/5 flex-col gap-4">
-          <div className="h-3/5">
-            <Router />
+      ) : (
+        <main className="flex h-[calc(100vh-4rem)] gap-4 p-4 overflow-hidden">
+          <div className="w-3/5">
+            <Providers />
           </div>
-          <div className="flex-1 overflow-hidden">
-            <Transformers />
+          <div className="flex w-2/5 flex-col gap-4">
+            <div className="h-3/5">
+              <Router />
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <Transformers />
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      )}
       <SettingsDialog isOpen={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
       <JsonEditor 
         open={isJsonEditorOpen} 

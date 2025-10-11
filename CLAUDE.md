@@ -41,4 +41,18 @@ This project is a TypeScript-based router for Claude Code requests. It allows ro
 -   **Claude Code Integration**: When a user runs `ccr code`, the command is forwarded to the running router service. The service then processes the request, applies routing rules, and sends it to the configured LLM. If the service isn't running, `ccr code` will attempt to start it automatically.
 -   **Dependencies**: The project is built with `esbuild`. It has a key local dependency `@musistudio/llms`, which probably contains the core logic for interacting with different LLM APIs.
 -   `@musistudio/llms` is implemented based on `fastify` and exposes `fastify`'s hook and middleware interfaces, allowing direct use of `server.addHook`.
-- 无论如何你都不能自动提交git
+
+## Grok Status Update Transformers
+
+The repository includes specialized transformers for xAI Grok models that enhance them with interactive status updates and Claude-like behavior patterns. These transformers bridge the communication gap between Claude's interactive style and Grok's autonomous execution pattern.
+
+### Available Transformers
+
+-   **grok-status-updates.js**: Adds periodic status updates and progress tracking during autonomous execution
+-   **grok-interactive.js**: Makes Grok models adopt Claude-like interactive communication patterns
+-   **grok-heartbeat.js**: Provides heartbeat functionality to prevent timeouts during long-running operations
+-   **grok-auto-router.js**: Intelligent model selection based on request complexity analysis
+
+### Installation
+
+See `plugins/README.md` for detailed installation and configuration instructions. The transformers can be copied to `~/.claude-code-router/plugins/` and configured in your `config.json` file.

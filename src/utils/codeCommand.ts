@@ -13,20 +13,42 @@ export async function executeCodeCommand(args: string[] = []) {
   // Set environment variables
   const config = await readConfigFile();
   const port = config.PORT || 3456;
+
+  // Determine if we're using Anthropic subscription or API key
+  const activeModel = config.Router?.default || '';
+  const [providerName] = activeModel.split(',');
+  const provider = config.Providers?.find((p: any) => p.name === providerName);
+
   const env: Record<string, string> = {
-    ANTHROPIC_AUTH_TOKEN: config?.APIKEY || "test",
-    ANTHROPIC_API_KEY: '',
+    ...process.env,
     ANTHROPIC_BASE_URL: `http://127.0.0.1:${port}`,
     NO_PROXY: `127.0.0.1`,
     DISABLE_TELEMETRY: 'true',
     DISABLE_COST_WARNINGS: 'true',
     API_TIMEOUT_MS: String(config.API_TIMEOUT_MS ?? 600000), // Default to 10 minutes if not set
-   // Reset CLAUDE_CODE_USE_BEDROCK when running with ccr code
+    // Reset CLAUDE_CODE_USE_BEDROCK when running with ccr code
     CLAUDE_CODE_USE_BEDROCK: undefined,
   };
-  const settingsFlag = {
+
+  // Handle Anthropic authentication based on provider configuration
+  if (provider?.auth_type === 'subscription') {
+    // For subscription, use AUTH_TOKEN
+    env.ANTHROPIC_AUTH_TOKEN = provider.auth_token || config?.APIKEY || "test";
+    env.ANTHROPIC_API_KEY = ''; // Clear API key
+  } else if (provider?.auth_type === 'api_key') {
+    // For API access, use API_KEY
+    env.ANTHROPIC_API_KEY = provider.api_key || '';
+    delete env.ANTHROPIC_AUTH_TOKEN;
+  } else {
+    // Default routing behavior (backward compatibility)
+    env.ANTHROPIC_AUTH_TOKEN = config?.APIKEY || "test";
+    env.ANTHROPIC_API_KEY = '';
+  }
+
+  let settingsFlag: Record<string, any> = {
     env
   };
+
   if (config?.StatusLine?.enabled) {
     settingsFlag.statusLine = {
       type: "command",
