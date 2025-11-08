@@ -6,3 +6,27 @@ dist
 .DS_Store
 .vscode
 ui/tsconfig.tsbuildinfo
+
+# Development and debugging files
+*.db
+*.db-journal
+test-*.js
+*-test.js
+debug-*.js
+debug-*.sh
+debug-*.txt
+check-*.js
+verify-*.js
+fix-*.js
+migrate-*.js
+init-*.js
+add-*.js
+*-output.txt
+*-output.log
+model-analysis.txt
+
+# Temporary bug reports and screenshots
+BYPASS_MODE_BUG_REPORT.md
+STATUSLINE_BUG_REPORT.md
+STATUSLINE_FIX_PROMPT.md
+UI.jpg
