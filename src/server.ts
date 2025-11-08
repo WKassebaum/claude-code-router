@@ -296,9 +296,41 @@ export const createServer = (config: any): Server => {
       // Get historical usage from database
       const historicalUsage = sessionId ? usageTracker.getSessionUsage(sessionId) : [];
 
-      // Get active routing info
+      // Get active routing info with correct priority order:
+      // 1. Check forced model cache (highest priority)
+      // 2. Check session usage cache (actual routed model)
+      // 3. Fall back to config.Router.default
       const config = await readConfigFile();
-      const activeRoute = currentUsage?.route || (config.Router?.default || '');
+      let activeRoute = '';
+      let isActual = false;
+
+      // DEBUG: Log cache state
+      console.log(`[STATUSLINE DEBUG] Session ID: ${sessionId}`);
+      console.log(`[STATUSLINE DEBUG] forcedModelCache.get:`, sessionId ? sessionForcedModelCache.get(sessionId) : undefined);
+      console.log(`[STATUSLINE DEBUG] sessionUsageCache.get:`, currentUsage);
+
+      // PRIORITY 1: Check forced model cache
+      const forcedModel = sessionId ? sessionForcedModelCache.get(sessionId) : undefined;
+      if (forcedModel && forcedModel !== "BYPASS") {
+        activeRoute = forcedModel;
+        isActual = true;
+        console.log(`[STATUSLINE DEBUG] Using forced model: ${forcedModel}`);
+      }
+
+      // PRIORITY 2: Check session usage cache (actual routed model)
+      if (!activeRoute && currentUsage?.route) {
+        activeRoute = currentUsage.route;
+        isActual = true;
+        console.log(`[STATUSLINE DEBUG] Using session usage cache: ${activeRoute}`);
+      }
+
+      // PRIORITY 3: Fall back to config default
+      if (!activeRoute) {
+        activeRoute = config.Router?.default || '';
+        isActual = false;
+        console.log(`[STATUSLINE DEBUG] Using config default: ${activeRoute}`);
+      }
+
       const [provider, model] = activeRoute.split(',');
 
       // Auto-fetch pricing if missing
@@ -310,7 +342,7 @@ export const createServer = (config: any): Server => {
           provider,
           model,
           route: activeRoute,
-          isActual: !!currentUsage?.route
+          isActual: isActual
         },
         currentSession: {
           inputTokens: currentUsage?.input_tokens || 0,

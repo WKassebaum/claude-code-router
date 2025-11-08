@@ -393,7 +393,12 @@ async function run(options: RunOptions = {}) {
               const str = dataStr.slice(27);
               try {
                 const message = JSON.parse(str);
-                sessionUsageCache.put(req.sessionId, normalizeUsage(message.usage));
+                // Preserve existing routing info when updating usage
+                const existingCache = sessionUsageCache.get(req.sessionId) || {};
+                sessionUsageCache.put(req.sessionId, {
+                  ...existingCache,
+                  ...normalizeUsage(message.usage)
+                });
               } catch {}
             }
           } catch (readError: any) {
