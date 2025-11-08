@@ -19,28 +19,28 @@ export async function runLogin() {
   console.log("\n🔐 Claude Code Router - Anthropic Subscription Login\n");
   console.log("This will help you configure CCR to use your Anthropic subscription (Claude Pro/Team/Max).\n");
 
-  // Ask if user wants to open browser
-  const openBrowser = await askQuestion("Open claude.ai in your browser? (y/n): ");
+  // Automatically open browser
+  const platform = process.platform;
+  let openCommand = "";
 
-  if (openBrowser.toLowerCase() === 'y' || openBrowser.toLowerCase() === 'yes') {
-    const platform = process.platform;
-    let openCommand = "";
+  if (platform === "win32") {
+    openCommand = "start https://claude.ai";
+  } else if (platform === "darwin") {
+    openCommand = "open https://claude.ai";
+  } else if (platform === "linux") {
+    openCommand = "xdg-open https://claude.ai";
+  }
 
-    if (platform === "win32") {
-      openCommand = "start https://claude.ai";
-    } else if (platform === "darwin") {
-      openCommand = "open https://claude.ai";
-    } else if (platform === "linux") {
-      openCommand = "xdg-open https://claude.ai";
-    }
-
-    if (openCommand) {
-      exec(openCommand, (error) => {
-        if (error) {
-          console.error("Failed to open browser:", error.message);
-        }
-      });
-    }
+  if (openCommand) {
+    console.log("🌐 Opening claude.ai in your browser...\n");
+    exec(openCommand, (error) => {
+      if (error) {
+        console.error("⚠️  Failed to automatically open browser:", error.message);
+        console.log("Please manually open: https://claude.ai\n");
+      }
+    });
+    // Give browser time to open
+    await new Promise(resolve => setTimeout(resolve, 1000));
   }
 
   console.log("\n📋 Instructions to extract your session token:\n");
