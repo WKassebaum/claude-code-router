@@ -7,7 +7,7 @@ import { readdirSync, statSync, readFileSync, writeFileSync, existsSync } from "
 import { homedir } from "os";
 import { calculateTokenCount } from "./utils/router";
 import { usageTracker, db, fetchModelPricing } from "./utils/database";
-import { sessionUsageCache } from "./utils/cache";
+import { sessionUsageCache, sessionForcedModelCache } from "./utils/cache";
 import { version } from "../package.json";
 
 export const createServer = (config: any): Server => {
@@ -355,6 +355,59 @@ export const createServer = (config: any): Server => {
     }
   });
 
+  // Session forced model registration endpoint
+  server.app.post("/api/session/force-model", async (req, reply) => {
+    try {
+      const { sessionId, model } = req.body as { sessionId: string; model?: string };
+
+      if (!sessionId) {
+        return reply.status(400).send({ error: "sessionId is required" });
+      }
+
+      // If no model specified or empty string, use "BYPASS" to bypass routing
+      const forcedModel = model || "BYPASS";
+
+      sessionForcedModelCache.put(sessionId, forcedModel);
+
+      req.log.info(`Registered forced model for session ${sessionId}: ${forcedModel}`);
+
+      return {
+        success: true,
+        sessionId,
+        forcedModel,
+        message: forcedModel === "BYPASS"
+          ? "Session will bypass routing and use model specified by Claude"
+          : `Session will use forced model: ${forcedModel}`
+      };
+    } catch (error) {
+      console.error("Failed to register forced model:", error);
+      reply.status(500).send({ error: "Failed to register forced model" });
+    }
+  });
+
+  // Get forced model for a session
+  server.app.get("/api/session/force-model", async (req, reply) => {
+    try {
+      const { sessionId } = req.query as { sessionId?: string };
+
+      if (!sessionId) {
+        return reply.status(400).send({ error: "sessionId is required" });
+      }
+
+      const forcedModel = sessionForcedModelCache.get(sessionId);
+
+      return {
+        sessionId,
+        forcedModel: forcedModel || null,
+        isBypass: forcedModel === "BYPASS",
+        isForced: !!forcedModel
+      };
+    } catch (error) {
+      console.error("Failed to get forced model:", error);
+      reply.status(500).send({ error: "Failed to get forced model" });
+    }
+  });
+
   // Usage summary endpoint for dashboard
   server.app.get("/api/usage/summary", async (req, reply) => {
     try {
@@ -390,6 +443,78 @@ export const createServer = (config: any): Server => {
     } catch (error) {
       console.error("Failed to get usage details:", error);
       reply.status(500).send({ error: "Failed to get usage details" });
+    }
+  });
+
+  // Daily usage endpoint for charts
+  server.app.get("/api/usage/daily", async (req, reply) => {
+    try {
+      const { startDate, endDate } = req.query as any;
+
+      if (!db) {
+        return [];
+      }
+
+      const query = `
+        SELECT
+          DATE(timestamp) as date,
+          SUM(cost_usd) as total_cost,
+          SUM(input_tokens) as total_input_tokens,
+          SUM(output_tokens) as total_output_tokens,
+          COUNT(*) as request_count
+        FROM usage_records
+        WHERE DATE(timestamp) BETWEEN ? AND ?
+        GROUP BY DATE(timestamp)
+        ORDER BY date ASC
+      `;
+
+      // Extract just the date part (YYYY-MM-DD) from ISO timestamps
+      const startDateOnly = startDate ? new Date(startDate).toISOString().split('T')[0] : '1970-01-01';
+      const endDateOnly = endDate ? new Date(endDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+
+      const dailyData = db.prepare(query).all(startDateOnly, endDateOnly);
+
+      return dailyData;
+    } catch (error) {
+      console.error("Failed to get daily usage:", error);
+      reply.status(500).send({ error: "Failed to get daily usage" });
+    }
+  });
+
+  // Daily usage per model endpoint for line charts
+  server.app.get("/api/usage/daily-by-model", async (req, reply) => {
+    try {
+      const { startDate, endDate } = req.query as any;
+
+      if (!db) {
+        return [];
+      }
+
+      const query = `
+        SELECT
+          DATE(timestamp) as date,
+          provider,
+          model,
+          SUM(cost_usd) as cost,
+          SUM(input_tokens) as input_tokens,
+          SUM(output_tokens) as output_tokens,
+          COUNT(*) as request_count
+        FROM usage_records
+        WHERE DATE(timestamp) BETWEEN ? AND ?
+        GROUP BY DATE(timestamp), provider, model
+        ORDER BY date ASC, cost DESC
+      `;
+
+      // Extract just the date part (YYYY-MM-DD) from ISO timestamps
+      const startDateOnly = startDate ? new Date(startDate).toISOString().split('T')[0] : '1970-01-01';
+      const endDateOnly = endDate ? new Date(endDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+
+      const dailyByModel = db.prepare(query).all(startDateOnly, endDateOnly);
+
+      return dailyByModel;
+    } catch (error) {
+      console.error("Failed to get daily usage by model:", error);
+      reply.status(500).send({ error: "Failed to get daily usage by model" });
     }
   });
 

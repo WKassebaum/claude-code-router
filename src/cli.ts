@@ -9,6 +9,7 @@ import {
   getServiceInfo,
 } from "./utils/processCheck";
 import { runModelSelector } from "./utils/modelSelector"; // ADD THIS LINE
+import { runLogin } from "./utils/login";
 import { version } from "../package.json";
 import { spawn, exec } from "child_process";
 import { PID_FILE, REFERENCE_COUNT_FILE } from "./constants";
@@ -16,6 +17,7 @@ import fs, { existsSync, readFileSync } from "fs";
 import { join } from "path";
 import { homedir } from "os";
 import { fetchModelPricing } from "./utils/database";
+import minimist from "minimist";
 
 const command = process.argv[2];
 
@@ -41,24 +43,33 @@ if (!existsSync(LOG_DIR)) {
 }
 
 const HELP_TEXT = `
-Usage: ccr [command]
+Usage: ccr [command] [options]
 
 Commands:
-  start         Start server 
+  start         Start server
   stop          Stop server
   restart       Restart server
   status        Show server status
   statusline    Integrated statusline
   code          Execute claude command
   model         Interactive model selection and configuration
+  login         Configure Anthropic subscription authentication
   ui            Open the web UI in browser
   update-pricing Update model pricing
   -v, version   Show version information
   -h, help      Show help information
 
-Example:
+Code Command Options:
+  -fd, --force-default <model>   Force a specific model for this request
+                                  Format: provider,model_name
+                                  Example: -fd openrouter,anthropic/claude-3.5-sonnet
+
+Examples:
   ccr start
+  ccr login
   ccr code "Write a Hello World"
+  ccr code --force-default deepseek,deepseek-chat "Explain this code"
+  ccr code -fd openrouter,anthropic/claude-3.5-sonnet "Review my code"
   ccr model
   ccr ui
 `;
@@ -164,6 +175,7 @@ async function main() {
 
       if (await waitForService()) {
         console.log("Service restarted successfully.");
+        process.exit(0);
       } else {
         console.error(
           "Service startup timeout, please manually run `ccr start` to start the service"
@@ -173,6 +185,7 @@ async function main() {
       break;
     case "status":
       await showStatus();
+      process.exit(0);
       break;
     case "statusline":
       // 从stdin读取JSON输入
@@ -199,8 +212,37 @@ async function main() {
     // ADD THIS CASE
     case "model":
       await runModelSelector();
+      process.exit(0);
+      break;
+    case "login":
+      await runLogin();
+      process.exit(0);
       break;
     case "code":
+      // Parse args for --force-default or -fd
+      const argv = minimist(args, {
+        alias: { 'force-default': 'fd' },
+        string: ['fd']
+      });
+      const forceModel = argv.fd || argv['force-default'];
+      if (forceModel) {
+        process.env.FORCE_DEFAULT_MODEL = forceModel;
+        console.log(`Force default model set to: ${forceModel}`);
+      }
+
+      // Filter out the -fd/--force-default args before passing to Claude
+      const filteredArgs = args.filter((arg, index) => {
+        // Skip the flag itself
+        if (arg === '-fd' || arg === '--force-default') {
+          return false;
+        }
+        // Skip the value that follows the flag
+        if (index > 0 && (args[index - 1] === '-fd' || args[index - 1] === '--force-default')) {
+          return false;
+        }
+        return true;
+      });
+
       if (!isRunning) {
         console.log("Service not running, starting service...");
         const cliPath = join(__dirname, "cli.js");
@@ -217,9 +259,7 @@ async function main() {
         startProcess.unref();
 
         if (await waitForService()) {
-          // Join all code arguments into a single string to preserve spaces within quotes
-          const codeArgs = process.argv.slice(3);
-          executeCodeCommand(codeArgs);
+          executeCodeCommand(filteredArgs);
         } else {
           console.error(
             "Service startup timeout, please manually run `ccr start` to start the service"
@@ -227,9 +267,7 @@ async function main() {
           process.exit(1);
         }
       } else {
-        // Join all code arguments into a single string to preserve spaces within quotes
-        const codeArgs = process.argv.slice(3);
-        executeCodeCommand(codeArgs);
+        executeCodeCommand(filteredArgs);
       }
       break;
     case "ui":

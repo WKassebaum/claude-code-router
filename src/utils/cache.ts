@@ -51,6 +51,12 @@ class LRUCache<K, V> {
 export const sessionUsageCache = new LRUCache<string, Usage>(100);
 
 /**
+ * Cache for session forced models
+ * Key: sessionId, Value: "provider,model" or "BYPASS" for bypassing routing
+ */
+export const sessionForcedModelCache = new LRUCache<string, string>(100);
+
+/**
  * Normalize usage data from different provider formats to Anthropic format
  */
 export function normalizeUsage(usage: any): Usage {

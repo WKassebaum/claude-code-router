@@ -214,6 +214,55 @@ Start Claude Code using the router:
 
 ```shell
 ccr code
+```
+
+#### Force a Specific Model (Per-Session)
+
+You can override the configured routing and force a specific model for an entire Claude Code session using the `--force-default` (or `-fd`) flag. This feature supports running multiple Claude Code instances simultaneously, each with different forced models.
+
+**Hybrid Behavior:**
+
+```shell
+# Force a specific model - bypasses ALL routing (default, background, think, longContext, webSearch)
+ccr code -fd provider,model_name "Your prompt here"
+ccr code -fd deepseek,deepseek-chat "Explain this code"
+ccr code -fd xai,grok-4-fast "Build a web app"
+
+# Bypass routing entirely - use whatever model you select in Claude Code
+ccr code -fd "Your prompt here"
+```
+
+**How it Works:**
+
+When you use `-fd`, CCR creates a unique session ID for that Claude Code instance. The forced model setting applies to **all requests** from that session, including:
+- Main requests
+- Background tasks (normally routed to `Router.background`)
+- Thinking/reasoning tasks (normally routed to `Router.think`)
+- Long context tasks (normally routed to `Router.longContext`)
+- Web search tasks (normally routed to `Router.webSearch`)
+
+**Multiple Sessions Example:**
+
+You can run multiple Claude Code windows simultaneously with different models:
+
+```shell
+# Terminal 1: Use Grok-4 for everything
+ccr code -fd xai,grok-4-fast
+
+# Terminal 2: Use Sonnet-4.5 for everything
+ccr code -fd anthropic,claude-sonnet-4.5
+
+# Terminal 3: Use normal CCR routing
+ccr code
+```
+
+Each session is completely independent and will display its actual model in the statusline.
+
+**Use Cases:**
+- Side-by-side model comparison
+- Dedicated workspaces for different tasks (fast model for experiments, powerful model for production work)
+- Testing new models without changing your configuration
+- Cost management (route expensive tasks to specific sessions)
 
 ### Starting the Router in Daemon Mode
 
@@ -224,8 +273,6 @@ ccr start --daemon
 ```
 
 This spawns a detached process, freeing the terminal. Logs are written to the file for monitoring (e.g., `tail -f ~/.claude-code-router/logs/ccr.log`). Use `ccr stop` to shut down.
-
-```
 
 > **Note**: After modifying the configuration file, you need to restart the service for the changes to take effect:
 >
@@ -259,7 +306,48 @@ The `Providers` array is where you define the different model providers you want
 
 ##### Anthropic Subscription Support
 
-You can now use your Anthropic Pro/Team subscription alongside API keys:
+CCR supports three ways to use your Anthropic subscription (Claude Pro/Team/Max):
+
+**Option 1: Passthrough Authentication (Easiest)**
+
+Use Claude Code's built-in `/login` without any CCR configuration:
+
+```json
+{
+  "Providers": [
+    {
+      "name": "anthropic-passthrough",
+      "api_base_url": "https://api.anthropic.com/v1/messages",
+      "auth_type": "passthrough",
+      "models": ["claude-opus-4", "claude-sonnet-4.5", "claude-3.5-sonnet"],
+      "transformer": { "use": ["anthropic"] }
+    }
+  ],
+  "Router": {
+    "default": "anthropic-passthrough,claude-sonnet-4.5"
+  }
+}
+```
+
+Then in Claude Code, just use `/login` as normal. CCR will automatically pass through your subscription auth!
+
+**Option 2: Interactive Login (Recommended)**
+
+Use `ccr login` for guided token extraction:
+
+```bash
+ccr login
+```
+
+This interactive command will:
+1. Optionally open claude.ai in your browser
+2. Guide you through extracting your session token from browser DevTools
+3. Automatically configure your `config.json`
+4. Set up the provider with your chosen default model
+
+**Option 3: Manual Configuration**
+
+Extract your session token manually and configure it:
 
 ```json
 {
@@ -268,16 +356,30 @@ You can now use your Anthropic Pro/Team subscription alongside API keys:
       "name": "anthropic-subscription",
       "api_base_url": "https://api.anthropic.com/v1/messages",
       "auth_type": "subscription",
-      "auth_token": "YOUR_ANTHROPIC_AUTH_TOKEN",
-      "models": ["claude-opus-4", "claude-sonnet-4", "claude-3.5-haiku"],
+      "auth_token": "sk-ant-sid01-...",
+      "models": ["claude-opus-4", "claude-sonnet-4.5", "claude-3.5-haiku"],
+      "transformer": { "use": ["anthropic"] }
+    }
+  ]
+}
+```
+
+You can mix authentication types in the same config:
+
+```json
+{
+  "Providers": [
+    {
+      "name": "anthropic-passthrough",
+      "auth_type": "passthrough",
+      "models": ["claude-sonnet-4.5"],
       "transformer": { "use": ["anthropic"] }
     },
     {
       "name": "anthropic-api",
-      "api_base_url": "https://api.anthropic.com/v1/messages",
       "auth_type": "api_key",
       "api_key": "sk-ant-api03-...",
-      "models": ["claude-opus-4", "claude-sonnet-4"],
+      "models": ["claude-opus-4"],
       "transformer": { "use": ["anthropic"] }
     }
   ]

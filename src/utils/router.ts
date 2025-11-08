@@ -4,9 +4,10 @@ import {
   Tool,
 } from "@anthropic-ai/sdk/resources/messages";
 import { get_encoding } from "tiktoken";
-import { sessionUsageCache, Usage } from "./cache";
+import { sessionUsageCache, sessionForcedModelCache, Usage } from "./cache";
 import { readFile } from 'fs/promises'
 import { filterAndSimplifyTools, needsToolFiltering } from "./toolSchemaSimplifier";
+import { resolveProvider } from "./modelProviderMap";
 
 const enc = get_encoding("cl100k_base");
 
@@ -170,7 +171,10 @@ export const router = async (req: any, _res: any, context: any) => {
     const parts = req.body.metadata.user_id.split("_session_");
     if (parts.length > 1) {
       req.sessionId = parts[1];
+      req.log.info(`[SESSION] Extracted sessionId: ${req.sessionId} from metadata: ${req.body.metadata.user_id}`);
     }
+  } else {
+    req.log.info(`[SESSION] No metadata.user_id found, sessionId will be undefined`);
   }
   const lastMessageUsage = sessionUsageCache.get(req.sessionId);
   const { messages, system = [], tools }: MessageCreateParamsBase = req.body;
@@ -187,7 +191,21 @@ export const router = async (req: any, _res: any, context: any) => {
     );
 
     let model;
-    if (config.CUSTOM_ROUTER_PATH) {
+
+    // Check for forced model first (highest priority)
+    const forcedModel = sessionForcedModelCache.get(req.sessionId);
+    req.log.info(`[SESSION] Looking up forced model for sessionId: ${req.sessionId}, found: ${forcedModel || 'none'}`);
+    if (forcedModel) {
+      if (forcedModel === "BYPASS") {
+        // Use whatever model Claude sent in the request (bypass routing)
+        model = req.body.model;
+        req.log.info(`[SESSION] Session ${req.sessionId} bypassing routing, using Claude model: ${model}`);
+      } else {
+        // Use the forced model
+        model = forcedModel;
+        req.log.info(`[SESSION] Session ${req.sessionId} using forced model: ${model}`);
+      }
+    } else if (config.CUSTOM_ROUTER_PATH) {
       try {
         const customRouter = require(config.CUSTOM_ROUTER_PATH);
         req.tokenCount = tokenCount; // Pass token count to custom router
@@ -198,6 +216,7 @@ export const router = async (req: any, _res: any, context: any) => {
         req.log.error(`failed to load custom router: ${e.message}`);
       }
     }
+
     if (!model) {
       model = await getUseModel(req, tokenCount, config, lastMessageUsage);
     }
@@ -205,7 +224,32 @@ export const router = async (req: any, _res: any, context: any) => {
 
     // Update session cache with actual routed model
     const existingUsage = sessionUsageCache.get(req.sessionId) || { input_tokens: 0, output_tokens: 0 };
-    const [provider, routedModel] = model.split(',');
+
+    let provider: string;
+    let routedModel: string;
+
+    if (model.includes(',')) {
+      // CCR format: "provider,model" (e.g., "xai,grok-4-fast-reasoning")
+      [provider, routedModel] = model.split(',');
+    } else {
+      // Claude Code format: just "model" (e.g., "grok-4-fast-reasoning")
+      // This happens in BYPASS mode when user selects model via /model command
+      routedModel = model;
+      provider = resolveProvider(model, config);
+
+      // Convert to CCR format for downstream processing
+      model = `${provider},${routedModel}`;
+      req.body.model = model;
+
+      req.log.info(`[BYPASS] Resolved provider for model "${routedModel}" → "${provider}"`);
+
+      if (provider === 'unknown') {
+        req.log.warn(
+          `[BYPASS] Unknown model "${routedModel}" - please add to MODEL_PROVIDER_MAP or config.Providers`
+        );
+      }
+    }
+
     sessionUsageCache.put(req.sessionId, {
       ...existingUsage,
       model: routedModel,

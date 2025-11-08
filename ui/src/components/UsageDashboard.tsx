@@ -23,9 +23,29 @@ interface UsageData {
   avg_response_time: number;
 }
 
+interface DailyUsageData {
+  date: string;
+  total_cost: number;
+  total_input_tokens: number;
+  total_output_tokens: number;
+  request_count: number;
+}
+
+interface DailyModelUsageData {
+  date: string;
+  provider: string;
+  model: string;
+  cost: number;
+  input_tokens: number;
+  output_tokens: number;
+  request_count: number;
+}
+
 export function UsageDashboard() {
   const { t } = useTranslation();
   const [summary, setSummary] = useState<UsageData[]>([]);
+  const [dailyUsage, setDailyUsage] = useState<DailyUsageData[]>([]);
+  const [dailyModelUsage, setDailyModelUsage] = useState<DailyModelUsageData[]>([]);
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState({
     start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
@@ -35,6 +55,8 @@ export function UsageDashboard() {
 
   useEffect(() => {
     fetchUsageData();
+    fetchDailyUsage();
+    fetchDailyModelUsage();
   }, [dateRange]);
 
   const fetchUsageData = async () => {
@@ -54,9 +76,37 @@ export function UsageDashboard() {
     }
   };
 
+  const fetchDailyUsage = async () => {
+    try {
+      const params = new URLSearchParams({
+        startDate: dateRange.start.toISOString(),
+        endDate: dateRange.end.toISOString()
+      });
+      const data = await api.get<DailyUsageData[]>(`/usage/daily?${params}`);
+      setDailyUsage(data || []);
+    } catch (error) {
+      console.error('Failed to fetch daily usage data:', error);
+      setDailyUsage([]);
+    }
+  };
+
+  const fetchDailyModelUsage = async () => {
+    try {
+      const params = new URLSearchParams({
+        startDate: dateRange.start.toISOString(),
+        endDate: dateRange.end.toISOString()
+      });
+      const data = await api.get<DailyModelUsageData[]>(`/usage/daily-by-model?${params}`);
+      setDailyModelUsage(data || []);
+    } catch (error) {
+      console.error('Failed to fetch daily model usage data:', error);
+      setDailyModelUsage([]);
+    }
+  };
+
   const handleRefresh = async () => {
     setRefreshing(true);
-    await fetchUsageData();
+    await Promise.all([fetchUsageData(), fetchDailyUsage(), fetchDailyModelUsage()]);
     setRefreshing(false);
   };
 
@@ -348,39 +398,204 @@ export function UsageDashboard() {
         </CardContent>
       </Card>
 
-      {/* Cost Breakdown Pie Chart (simplified representation) */}
-      {!loading && summary.length > 0 && (
+      {/* Cost Distribution by Model - Stacked Line Charts */}
+      {!loading && dailyModelUsage.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>{t('usage.cost_distribution', 'Cost Distribution')}</CardTitle>
+            <CardTitle>{t('usage.cost_distribution', 'Cost Distribution by Model')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              {summary
-                .sort((a, b) => b.total_cost - a.total_cost)
-                .slice(0, 5)
-                .map((item, idx) => {
-                  const percentage = (item.total_cost / totalCost) * 100;
-                  return (
-                    <div key={idx} className="flex items-center gap-2">
-                      <div className="w-32 text-sm truncate">
-                        {item.provider}/{item.model}
+            <div className="space-y-1">
+              {(() => {
+                // Group data by model
+                const modelData = new Map<string, { dates: string[], costs: number[], totalCost: number }>();
+                dailyModelUsage.forEach(entry => {
+                  const key = `${entry.provider}/${entry.model}`;
+                  if (!modelData.has(key)) {
+                    modelData.set(key, { dates: [], costs: [], totalCost: 0 });
+                  }
+                  const data = modelData.get(key)!;
+                  data.dates.push(entry.date);
+                  data.costs.push(entry.cost);
+                  data.totalCost += entry.cost;
+                });
+
+                // Generate all dates in the selected range (using local timezone to match date picker)
+                const allDates: string[] = [];
+
+                // Normalize to midnight to avoid time comparison issues
+                const currentDate = new Date(dateRange.start);
+                currentDate.setHours(0, 0, 0, 0);
+
+                const endDate = new Date(dateRange.end);
+                endDate.setHours(23, 59, 59, 999); // End of day
+
+                // Use local date to avoid timezone issues
+                while (currentDate <= endDate) {
+                  const year = currentDate.getFullYear();
+                  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+                  const day = String(currentDate.getDate()).padStart(2, '0');
+                  allDates.push(`${year}-${month}-${day}`);
+                  currentDate.setDate(currentDate.getDate() + 1);
+                }
+
+                // Sort models alphabetically
+                const sortedModels = Array.from(modelData.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+
+                // Calculate unified Y-axis max across ALL models
+                const globalYAxisMax = Math.max(
+                  ...sortedModels.map(([, data]) => {
+                    const maxDailyCost = Math.max(...data.costs, 0.0001);
+                    return Math.max(maxDailyCost, data.totalCost * 1.2);
+                  }),
+                  0.0001 // Minimum to avoid division by zero
+                );
+
+                // Chart dimensions
+                const chartHeight = 100;
+                const padding = { top: 10, right: 10, bottom: 0, left: 60 };
+                const plotHeight = chartHeight - padding.top - padding.bottom;
+
+                return (
+                  <div className="space-y-0">
+                    {/* Stacked charts for each model */}
+                    {sortedModels.map(([modelKey, data], modelIdx) => {
+
+                      return (
+                        <div key={modelKey} className="flex items-center gap-4 border-b pb-1 last:border-b-0">
+                          {/* Model name */}
+                          <div className="w-64 text-sm font-medium truncate">
+                            {modelKey}
+                          </div>
+
+                          {/* Chart */}
+                          <div className="flex-1">
+                            <svg
+                              width="100%"
+                              height={chartHeight}
+                              viewBox={`0 0 ${800} ${chartHeight}`}
+                              preserveAspectRatio="none"
+                              className="overflow-visible"
+                            >
+                              <g transform={`translate(${padding.left}, ${padding.top})`}>
+                                {/* Y-axis */}
+                                <line x1="0" y1="0" x2="0" y2={plotHeight} stroke="#999" strokeWidth="1" />
+
+                                {/* Y-axis labels */}
+                                <text x="-5" y="0" textAnchor="end" fontSize="9" fill="#666">
+                                  ${globalYAxisMax.toFixed(4)}
+                                </text>
+                                <text x="-5" y={plotHeight} textAnchor="end" fontSize="9" fill="#666">
+                                  $0
+                                </text>
+
+                                {/* Line and points */}
+                                <g>
+                                  {/* Line */}
+                                  <polyline
+                                    points={allDates.map((date, i) => {
+                                      const dateIdx = data.dates.indexOf(date);
+                                      const cost = dateIdx >= 0 ? data.costs[dateIdx] : 0;
+                                      const x = (i / Math.max(allDates.length - 1, 1)) * (800 - padding.left - padding.right);
+                                      const y = plotHeight - (cost / globalYAxisMax) * plotHeight;
+                                      return `${x},${y}`;
+                                    }).join(' ')}
+                                    fill="none"
+                                    stroke="#3b82f6"
+                                    strokeWidth="2"
+                                    vectorEffect="non-scaling-stroke"
+                                  />
+
+                                  {/* Data points with cost labels */}
+                                  {allDates.map((date, i) => {
+                                    const dateIdx = data.dates.indexOf(date);
+                                    if (dateIdx >= 0) {
+                                      const cost = data.costs[dateIdx];
+                                      const x = (i / Math.max(allDates.length - 1, 1)) * (800 - padding.left - padding.right);
+                                      const y = plotHeight - (cost / globalYAxisMax) * plotHeight;
+                                      return (
+                                        <g key={date}>
+                                          <circle cx={x} cy={y} r="3" fill="#3b82f6" vectorEffect="non-scaling-stroke" />
+                                          <text
+                                            x={x}
+                                            y={y - 8}
+                                            textAnchor="middle"
+                                            fontSize="9"
+                                            fill="#3b82f6"
+                                            fontWeight="500"
+                                          >
+                                            ${cost.toFixed(4)}
+                                          </text>
+                                        </g>
+                                      );
+                                    }
+                                    return null;
+                                  })}
+                                </g>
+                              </g>
+                            </svg>
+                          </div>
+
+                          {/* Total cost */}
+                          <div className="w-28 text-sm text-right font-semibold">
+                            ${data.totalCost.toFixed(4)}
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {/* Date labels at bottom */}
+                    <div className="flex items-center gap-4 pt-2">
+                      <div className="w-64"></div>
+                      <div className="flex-1">
+                        <svg
+                          width="100%"
+                          height="25"
+                          viewBox={`0 0 ${800} 25`}
+                          preserveAspectRatio="none"
+                        >
+                          <g transform={`translate(${padding.left}, 5)`}>
+                            {(() => {
+                              // Calculate label interval to prevent overlap
+                              const totalDates = allDates.length;
+                              let labelInterval = 1;
+                              if (totalDates > 30) labelInterval = 5;
+                              else if (totalDates > 20) labelInterval = 3;
+                              else if (totalDates > 10) labelInterval = 2;
+
+                              return allDates.map((date, i) => {
+                                // Only show labels at intervals to prevent overlap
+                                if (i % labelInterval !== 0 && i !== allDates.length - 1) {
+                                  return null; // Skip this label
+                                }
+
+                                const x = (i / Math.max(allDates.length - 1, 1)) * (800 - padding.left - padding.right);
+                                // Parse date in local timezone to avoid UTC shift
+                                const [year, month, day] = date.split('-').map(Number);
+                                // Format as MM/DD (more compact than "Nov 1")
+                                const dateLabel = `${month}/${day}`;
+                                return (
+                                  <text
+                                    key={date}
+                                    x={x}
+                                    y="15"
+                                    textAnchor="middle"
+                                    fontSize="10"
+                                    fill="#666"
+                                  >
+                                    {dateLabel}
+                                  </text>
+                                );
+                              });
+                            })()}
+                          </g>
+                        </svg>
                       </div>
-                      <div className="flex-1 bg-muted rounded-full h-6 relative overflow-hidden">
-                        <div
-                          className="absolute inset-y-0 left-0 bg-primary/80 rounded-full transition-all"
-                          style={{ width: `${percentage}%` }}
-                        />
-                        <span className="absolute inset-0 flex items-center justify-center text-xs">
-                          {percentage.toFixed(1)}%
-                        </span>
-                      </div>
-                      <div className="text-sm w-20 text-right">
-                        ${item.total_cost.toFixed(2)}
-                      </div>
+                      <div className="w-28"></div>
                     </div>
-                  );
-                })}
+                  </div>
+                );
+              })()}
             </div>
           </CardContent>
         </Card>

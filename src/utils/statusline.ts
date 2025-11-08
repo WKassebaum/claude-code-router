@@ -3,6 +3,7 @@ import { execSync } from "child_process";
 import path from "node:path";
 import { CONFIG_FILE, HOME_DIR } from "../constants";
 import JSON5 from "json5";
+import { sessionForcedModelCache, sessionUsageCache } from "./cache";
 
 export interface StatusLineModuleConfig {
   type: string;
@@ -454,31 +455,62 @@ export async function parseStatusLineData(input: StatusLineInput): Promise<strin
     } catch (error) {
       // 如果不是Git仓库或获取失败，则忽略错误
     }
-    
-    // 从transcript_path文件中读取最后一条assistant消息
-    const transcriptContent = await fs.readFile(input.transcript_path, "utf-8");
-    const lines = transcriptContent.trim().split("\n");
-    
-    // 反向遍历寻找最后一条assistant消息
+
+    // Model resolution with correct priority order:
+    // 1. Check forced model cache (highest priority)
+    // 2. Check session usage cache (actual routed model)
+    // 3. Read from transcript (last assistant message)
+    // 4. Read from config file (Router.default)
+    // 5. Use input.model.display_name (fallback)
+
     let model = "";
     let inputTokens = 0;
     let outputTokens = 0;
-    
-    for (let i = lines.length - 1; i >= 0; i--) {
+
+    // PRIORITY 1: Check forced model cache
+    const forcedModel = sessionForcedModelCache.get(input.session_id);
+    if (forcedModel && forcedModel !== "BYPASS") {
+      // Extract model name from "provider,model" format
+      const parts = forcedModel.split(',');
+      if (parts.length >= 2) {
+        model = parts[1].trim();
+      }
+    }
+
+    // PRIORITY 2: Check session usage cache (actual routed model)
+    if (!model) {
+      const sessionUsage = sessionUsageCache.get(input.session_id);
+      if (sessionUsage?.model) {
+        model = sessionUsage.model;
+      }
+    }
+
+    // PRIORITY 3: Read from transcript (only if no model from cache)
+    if (!model) {
       try {
-        const message: AssistantMessage = JSON.parse(lines[i]);
-        if (message.type === "assistant" && message.message.model) {
-          model = message.message.model;
-          
-          if (message.message.usage) {
-            inputTokens = message.message.usage.input_tokens;
-            outputTokens = message.message.usage.output_tokens;
+        const transcriptContent = await fs.readFile(input.transcript_path, "utf-8");
+        const lines = transcriptContent.trim().split("\n");
+
+        // 反向遍历寻找最后一条assistant消息
+        for (let i = lines.length - 1; i >= 0; i--) {
+          try {
+            const message: AssistantMessage = JSON.parse(lines[i]);
+            if (message.type === "assistant" && message.message.model) {
+              model = message.message.model;
+
+              if (message.message.usage) {
+                inputTokens = message.message.usage.input_tokens;
+                outputTokens = message.message.usage.output_tokens;
+              }
+              break;
+            }
+          } catch (parseError) {
+            // 忽略解析错误，继续查找
+            continue;
           }
-          break;
         }
-      } catch (parseError) {
-        // 忽略解析错误，继续查找
-        continue;
+      } catch (readError) {
+        // 如果transcript读取失败，继续到下一个fallback
       }
     }
     
