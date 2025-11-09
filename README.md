@@ -6,17 +6,15 @@
 
 <hr>
 
-> I am currently seeking **Agent development related job opportunities**, either **based in Hangzhou** or **remote**. If you are interested in my projects or have suitable opportunities, feel free to reach out! 📧 Email: m@musiiot.top
+![](blog/images/sponsors/glm-en.jpg)
+> This project is sponsored by Z.ai, supporting us with their GLM CODING PLAN.    
+> GLM CODING PLAN is a subscription service designed for AI coding, starting at just $3/month. It provides access to their flagship GLM-4.6 model across 10+ popular AI coding tools (Claude Code, Cline, Roo Code, etc.), offering developers top-tier, fast, and stable coding experiences.     
+> Get 10% OFF GLM CODING PLAN：https://z.ai/subscribe?ic=8JVLJQFSKB
+
 
 > A powerful tool to route Claude Code requests to different models and customize any request.
 
-> Now you can use models such as `GLM-4.5`, `Kimi-K2`, `Qwen3-Coder-480B-A35B`, and `DeepSeek v3.1` for free through the [iFlow Platform](https://platform.iflow.cn/docs/api-mode).     
-> You can use the `ccr ui` command to directly import the `iflow` template in the UI. It’s worth noting that iFlow limits each user to a concurrency of 1, which means you’ll need to route background requests to other models.      
-> If you’d like a better experience, you can try [iFlow CLI](https://cli.iflow.cn).
-
 ![](blog/images/claude-code.png)
-
-![](blog/images/roadmap.svg)
 
 ## ✨ Features
 
@@ -28,6 +26,7 @@
 - **Statusline Integration**: Real-time usage display with CCR detection.
 - **Request/Response Transformation**: Customize requests and responses for different providers using transformers.
 - **Dynamic Model Switching**: Switch models on-the-fly within Claude Code using the `/model` command.
+- **CLI Model Management**: Manage models and providers directly from the terminal with `ccr model`.
 - **GitHub Actions Integration**: Trigger Claude Code tasks in your GitHub workflows.
 - **Plugin System**: Extend functionality with custom transformers.
 - **Usage Export**: Export usage data in CSV or JSON format for billing reconciliation.
@@ -291,6 +290,32 @@ ccr ui
 This will open a web-based interface where you can easily view and edit your `config.json` file.
 
 ![UI](/blog/images/ui.png)
+
+### 5. CLI Model Management
+
+For users who prefer terminal-based workflows, you can use the interactive CLI model selector:
+
+```shell
+ccr model
+```
+![](blog/images/models.gif)
+
+This command provides an interactive interface to:
+
+- View current configuration:
+- See all configured models (default, background, think, longContext, webSearch, image)
+- Switch models: Quickly change which model is used for each router type
+- Add new models: Add models to existing providers
+- Create new providers: Set up complete provider configurations including:
+   - Provider name and API endpoint
+   - API key
+   - Available models
+   - Transformer configuration with support for:
+     - Multiple transformers (openrouter, deepseek, gemini, etc.)
+     - Transformer options (e.g., maxtoken with custom limits)
+     - Provider-specific routing (e.g., OpenRouter provider preferences)
+
+The CLI tool validates all inputs and provides helpful prompts to guide you through the configuration process, making it easy to manage complex setups without editing JSON files manually.
 
 #### Providers
 
@@ -691,6 +716,8 @@ A huge thank you to all our sponsors for their generous support!
 
 - [AIHubmix](https://aihubmix.com/)
 - [BurnCloud](https://ai.burncloud.com)
+- [302.AI](https://share.302.ai/ZGVF9w)
+- [Z智谱](https://www.bigmodel.cn/claude-code?ic=FPF9IVAGFJ)
 - @Simon Leischnig
 - [@duanshuaimin](https://github.com/duanshuaimin)
 - [@vrgitadmin](https://github.com/vrgitadmin)
@@ -773,5 +800,13 @@ A huge thank you to all our sponsors for their generous support!
 - @\*\*飞
 - @\*\*驰
 - @x\*g
+- @\*\*东
+- @\*落
+- @哆\*k
+- @\*涛
+- [@苗大](https://github.com/WitMiao)
+- @\*呢
+- @\d*u
+- @crizcraig
 
 (If your name is masked, please contact me via my homepage email to update it with your GitHub username.)

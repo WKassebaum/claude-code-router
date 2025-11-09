@@ -6,17 +6,13 @@
 
 <hr>
 
-> 我目前正在寻找 **Agent 开发相关的工作机会**，可 base 在 **杭州**，也接受 **远程** 合作。如果你对我的项目感兴趣，或有合适的岗位/合作机会，欢迎联系我！ 📧 Email: m@musiiot.top
+![](blog/images/sponsors/glm-zh.jpg)
+> GLM CODING PLAN 是专为AI编码打造的订阅套餐，每月最低仅需20元，即可在十余款主流AI编码工具如Claude Code、中畅享智谱旗舰模型GLM-4.6，为开发者提供顶尖的编码体验。   
+> 智谱AI为本软件提供了特别优惠，使用以下链接购买可以享受九折优惠：https://www.bigmodel.cn/claude-code?ic=RRVJPB5SII
 
 > 一款强大的工具，可将 Claude Code 请求路由到不同的模型，并自定义任何请求。
 
-> 现在你可以通过[心流平台](https://platform.iflow.cn/docs/api-mode)免费使用`GLM-4.5`、`Kimi-K2`、`Qwen3-Coder-480B-A35B`、`DeepSeek v3.1`等模型。     
-> 你可以使用`ccr ui`命令在UI中直接导入`iflow`模板，值得注意的是心流限制每位用户的并发数为1，意味着你需要将`background`路由到其他模型。      
-> 如果你想获得更好的体验，可以尝试[iFlow CLI](https://cli.iflow.cn)。      
-
 ![](blog/images/claude-code.png)
-
-![](blog/images/roadmap.svg)
 
 
 ## ✨ 功能
@@ -480,6 +476,8 @@ jobs:
 
 - [AIHubmix](https://aihubmix.com/)
 - [BurnCloud](https://ai.burncloud.com)
+- [302.AI](https://share.302.ai/ZGVF9w)
+- [Z智谱](https://www.bigmodel.cn/claude-code?ic=FPF9IVAGFJ)
 - @Simon Leischnig
 - [@duanshuaimin](https://github.com/duanshuaimin)
 - [@vrgitadmin](https://github.com/vrgitadmin)
@@ -562,6 +560,15 @@ jobs:
 - @\*\*飞
 - @\*\*驰
 - @x\*g
+- @\*\*东
+- @\*落
+- @哆\*k
+- @\*涛
+- [@苗大](https://github.com/WitMiao)
+- @\*呢
+- @\d*u
+- @crizcraig
+
 
 （如果您的名字被屏蔽，请通过我的主页电子邮件与我联系，以便使用您的 GitHub 用户名进行更新。）
 
