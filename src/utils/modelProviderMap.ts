@@ -1,4 +1,16 @@
 /**
+ * Maps model aliases to their actual API model names
+ * Used to resolve short/friendly names to full API model identifiers
+ */
+export const MODEL_ALIAS_MAP: Record<string, string> = {
+  // Gemini 3 aliases -> gemini-3-pro-preview
+  'gemini3': 'gemini-3-pro-preview',
+  'gemini-3': 'gemini-3-pro-preview',
+  'gemini3-pro': 'gemini-3-pro-preview',
+  'gemini-3-pro': 'gemini-3-pro-preview',
+};
+
+/**
  * Maps common model names to their providers
  * Used when Claude Code sends model names without provider prefix
  */
@@ -13,10 +25,22 @@ export const MODEL_PROVIDER_MAP: Record<string, string> = {
   'grok-vision-beta': 'xai',
 
   // Google Gemini models
+  // Gemini 3 (Nov 2025 - 1501 Elo, highest on LMArena)
+  'gemini-3-pro-preview': 'gemini',
+  'gemini-3-pro': 'gemini',
+  'gemini3-pro': 'gemini',
+  'gemini-3': 'gemini',
+  'gemini3': 'gemini',
+
+  // Gemini 2.5
   'gemini-2.5-pro': 'gemini',
   'gemini-2.5-flash': 'gemini',
+
+  // Gemini 2.0
   'gemini-2.0-pro': 'gemini',
   'gemini-2.0-flash': 'gemini',
+
+  // Legacy versions
   'gemini-pro': 'gemini',
   'gemini-flash': 'gemini',
   'gemini-1.5-pro': 'gemini',
@@ -47,6 +71,21 @@ export const MODEL_PROVIDER_MAP: Record<string, string> = {
   'deepseek-coder': 'deepseek',
   'deepseek-reasoner': 'deepseek',
 };
+
+/**
+ * Resolve model alias to actual API model name
+ * @param modelName - Model name or alias (e.g., "gemini3", "gemini-3-pro")
+ * @returns Resolved model name (e.g., "gemini-3-pro-preview") or original if no alias found
+ */
+export function resolveModelAlias(modelName: string): string {
+  // Check if this is an alias
+  const resolvedModel = MODEL_ALIAS_MAP[modelName];
+  if (resolvedModel) {
+    return resolvedModel;
+  }
+  // Return original if not an alias
+  return modelName;
+}
 
 /**
  * Resolve provider name from model name

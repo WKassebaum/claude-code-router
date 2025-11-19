@@ -11,7 +11,7 @@ import { join } from "path";
 import { CLAUDE_PROJECTS_DIR, HOME_DIR } from "../constants";
 import { LRUCache } from "lru-cache";
 import { filterAndSimplifyTools, needsToolFiltering } from "./toolSchemaSimplifier";
-import { resolveProvider } from "./modelProviderMap";
+import { resolveProvider, resolveModelAlias } from "./modelProviderMap";
 
 const enc = get_encoding("cl100k_base");
 
@@ -103,6 +103,137 @@ const getProjectSpecificRouter = async (req: any) => {
     }
   }
   return undefined; // 返回undefined表示使用原始配置
+};
+
+/**
+ * Intelligent Grok model selection based on request characteristics
+ * Includes fallback logic for models that may not be available yet
+ */
+const selectOptimalGrokModel = (
+  req: any,
+  tokenCount: number,
+  defaultModel: string,
+  config: any
+): string => {
+  const messages = req.body.messages || [];
+  const tools = req.body.tools || [];
+  const lastMessage = messages[messages.length - 1];
+  const userContent = typeof lastMessage?.content === 'string'
+    ? lastMessage.content.toLowerCase()
+    : '';
+
+  // Extract provider and current model
+  const [provider, currentModel] = defaultModel.includes(',')
+    ? defaultModel.split(',')
+    : ['xai', defaultModel];
+
+  // Get available models from config for validation
+  const xaiProvider = config.Providers?.find((p: any) => p.name === 'xai');
+  const availableModels = xaiProvider?.models || [];
+
+  // Helper to check if a model is available and return it with fallback
+  const tryModel = (preferred: string, fallback: string): string => {
+    const modelName = preferred.split(',')[1] || preferred;
+    if (availableModels.includes(modelName)) {
+      req.log.info(`[GROK-AUTO-ROUTER] Using preferred model: ${preferred}`);
+      return preferred;
+    } else {
+      req.log.warn(`[GROK-AUTO-ROUTER] Model ${modelName} not available, falling back to ${fallback}`);
+      return fallback;
+    }
+  };
+
+  // Debugging and complex reasoning indicators
+  const isDebugging = /debug|error|bug|fix|investigate|troubleshoot|analyze.*issue/.test(userContent);
+  const isComplexReasoning = /architecture|design|refactor|optimize|security|audit/.test(userContent);
+  const hasMultipleSteps = /first.*then|step.*step|1\.|2\.|3\./.test(userContent);
+
+  // Code generation indicators
+  const isCodeGeneration = /write.*code|implement|create.*function|generate.*class|add.*feature/.test(userContent);
+  const hasCodeBlocks = /```|`[^`]+`/.test(userContent);
+
+  // Large codebase indicators
+  const isLargeCodebase = tokenCount > 50000 || tools.length > 15;
+  const isComprehensiveTask = /entire|whole|all|comprehensive|complete/.test(userContent);
+
+  // Fast code editing indicators
+  const isFastEdit = /quick|simple|small change|minor|just/.test(userContent) && isCodeGeneration;
+
+  req.log.info(`[GROK-AUTO-ROUTER] Analysis: debug=${isDebugging}, reasoning=${isComplexReasoning}, codegen=${isCodeGeneration}, large=${isLargeCodebase}, fastEdit=${isFastEdit}`);
+
+  // Priority 1: Fast code edits -> grok-fast-code-1
+  if (isFastEdit && provider === 'xai') {
+    return tryModel(`${provider},grok-fast-code-1`, `${provider},grok-4-fast`);
+  }
+
+  // Priority 2: Large codebase or comprehensive tasks -> grok-4-heavy
+  if ((isLargeCodebase || isComprehensiveTask) && provider === 'xai') {
+    return tryModel(`${provider},grok-4-heavy`, `${provider},grok-4-0709`);
+  }
+
+  // Priority 3: Debugging or complex reasoning -> Try grok-4.1-thinking first, fallback to grok-4-fast-reasoning
+  if ((isDebugging || isComplexReasoning || hasMultipleSteps) && provider === 'xai') {
+    return tryModel(`${provider},grok-4.1-thinking`, `${provider},grok-4-fast-reasoning`);
+  }
+
+  // Priority 4: Pure code generation without reasoning -> grok-4-fast-non-reasoning
+  if (isCodeGeneration && !isDebugging && !isComplexReasoning && provider === 'xai') {
+    return tryModel(`${provider},grok-4-fast-non-reasoning`, `${provider},grok-4-fast`);
+  }
+
+  // Priority 5: High quality complex tasks -> grok-4-0709
+  if ((tokenCount > 30000 || tools.length > 10) && (isComplexReasoning || hasMultipleSteps) && provider === 'xai') {
+    return tryModel(`${provider},grok-4-0709`, `${provider},grok-4-fast`);
+  }
+
+  // Default: keep current model
+  return defaultModel;
+};
+
+/**
+ * Calculate dynamic timeout for Grok requests based on model and complexity
+ */
+const calculateGrokTimeout = (
+  model: string,
+  tokenCount: number,
+  toolCount: number
+): number => {
+  // Base timeouts by model type (in milliseconds)
+  const baseTimeouts: Record<string, number> = {
+    'grok-4-heavy': 180000,        // 3 minutes - comprehensive analysis
+    'grok-4.1-thinking': 90000,    // 1.5 minutes - Grok 4.1 thinking mode (Nov 2025)
+    'grok-4-1-thinking': 90000,    // 1.5 minutes - Alt naming
+    'grok-4.1-fast': 60000,        // 1 minute - Grok 4.1 fast mode
+    'grok-4-1-fast': 60000,        // 1 minute - Alt naming
+    'grok-4.1': 75000,             // 1.25 minutes - General Grok 4.1
+    'grok-4-1': 75000,             // 1.25 minutes - Alt naming
+    'grok-4-0709': 120000,         // 2 minutes - complex reasoning
+    'grok-4-fast-reasoning': 90000, // 1.5 minutes - debugging
+    'grok-4-fast': 60000,          // 1 minute - default fast
+    'grok-4-fast-non-reasoning': 45000, // 45 seconds - pure codegen
+    'grok-fast-code-1': 30000,     // 30 seconds - quick edits
+  };
+
+  // Find matching base timeout
+  let baseTimeout = 60000; // Default 1 minute
+  for (const [modelPattern, timeout] of Object.entries(baseTimeouts)) {
+    if (model.includes(modelPattern)) {
+      baseTimeout = timeout;
+      break;
+    }
+  }
+
+  // Add time for token complexity (1 second per 10k tokens)
+  const tokenMultiplier = Math.floor(tokenCount / 10000) * 1000;
+
+  // Add time for tool usage (5 seconds per tool)
+  const toolMultiplier = toolCount * 5000;
+
+  // Calculate total with reasonable bounds
+  const calculatedTimeout = baseTimeout + tokenMultiplier + toolMultiplier;
+
+  // Min 30 seconds, max 5 minutes
+  return Math.max(30000, Math.min(300000, calculatedTimeout));
 };
 
 const getUseModel = async (
@@ -203,6 +334,17 @@ const getUseModel = async (
     req.log.info(`Using think model for ${req.body.thinking}`);
     return Router.think;
   }
+
+  // Grok-specific intelligent routing
+  const defaultModel = Router!.default;
+  if (defaultModel && (defaultModel.includes('grok') || defaultModel.includes('xai,'))) {
+    const grokVariant = selectOptimalGrokModel(req, tokenCount, defaultModel, config);
+    if (grokVariant !== defaultModel) {
+      req.log.info(`[GROK-AUTO-ROUTER] Switching from ${defaultModel} to ${grokVariant} based on request analysis`);
+      return grokVariant;
+    }
+  }
+
   return Router!.default;
 };
 
@@ -277,11 +419,27 @@ export const router = async (req: any, _res: any, context: any) => {
     if (model.includes(',')) {
       // CCR format: "provider,model" (e.g., "xai,grok-4-fast-reasoning")
       [provider, routedModel] = model.split(',');
+
+      // Resolve model alias to actual API model name
+      const resolvedModel = resolveModelAlias(routedModel);
+      if (resolvedModel !== routedModel) {
+        req.log.info(`[ALIAS] Resolved model alias "${routedModel}" → "${resolvedModel}"`);
+        routedModel = resolvedModel;
+        model = `${provider},${routedModel}`;
+        req.body.model = model;
+      }
     } else {
       // Claude Code format: just "model" (e.g., "grok-4-fast-reasoning")
       // This happens in BYPASS mode when user selects model via /model command
       routedModel = model;
       provider = resolveProvider(model, config);
+
+      // Resolve model alias to actual API model name
+      const resolvedModel = resolveModelAlias(routedModel);
+      if (resolvedModel !== routedModel) {
+        req.log.info(`[ALIAS] Resolved model alias "${routedModel}" → "${resolvedModel}"`);
+        routedModel = resolvedModel;
+      }
 
       // Convert to CCR format for downstream processing
       model = `${provider},${routedModel}`;
@@ -303,6 +461,25 @@ export const router = async (req: any, _res: any, context: any) => {
       route: model,
       timestamp: new Date().toISOString()
     });
+
+    // Enhanced Grok logging
+    if (provider === 'xai' || routedModel.toLowerCase().includes('grok')) {
+      req.log.info(`┌─ [GROK ROUTING] ──────────────────────────────`);
+      req.log.info(`│ Session: ${req.sessionId}`);
+      req.log.info(`│ Model: ${routedModel} (Provider: ${provider})`);
+      req.log.info(`│ Token Count: ${tokenCount.toLocaleString()}`);
+      req.log.info(`│ Tool Count: ${req.body.tools?.length || 0}`);
+      req.log.info(`│ Forced Model: ${forcedModel || 'none'}`);
+      req.log.info(`└────────────────────────────────────────────────`);
+
+      // Calculate dynamic timeout based on Grok model complexity
+      const timeout = calculateGrokTimeout(routedModel, tokenCount, req.body.tools?.length || 0);
+      if (!req.body.metadata) {
+        req.body.metadata = {};
+      }
+      req.body.metadata.grok_timeout = timeout;
+      req.log.info(`[GROK-TIMEOUT] Dynamic timeout set to ${timeout}ms (${(timeout / 1000).toFixed(1)}s)`);
+    }
 
     // Apply tool filtering and simplification based on provider limitations
     if (needsToolFiltering(model) && req.body.tools) {
