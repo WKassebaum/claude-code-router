@@ -16,8 +16,14 @@ export const MODEL_ALIAS_MAP: Record<string, string> = {
  */
 export const MODEL_PROVIDER_MAP: Record<string, string> = {
   // XAI / Grok models
+  // Grok 4.1 Fast (Nov 19, 2025 - 2M context)
+  'grok-4-1-fast-reasoning': 'xai',
+  'grok-4-1-fast-non-reasoning': 'xai',
+
+  // Grok 4
   'grok-4-fast': 'xai',
   'grok-4-fast-reasoning': 'xai',
+  'grok-4-fast-non-reasoning': 'xai',
   'grok-4': 'xai',
   'grok-4-code': 'xai',
   'grok-4-code-fast': 'xai',
