@@ -8,6 +8,12 @@ export const MODEL_ALIAS_MAP: Record<string, string> = {
   'gemini-3': 'gemini-3-pro-preview',
   'gemini3-pro': 'gemini-3-pro-preview',
   'gemini-3-pro': 'gemini-3-pro-preview',
+
+  // Claude Opus 4.5 aliases -> claude-opus-4-5-20251101
+  'opus-4.5': 'claude-opus-4-5-20251101',
+  'opus4.5': 'claude-opus-4-5-20251101',
+  'claude-opus-4.5': 'claude-opus-4-5-20251101',
+  'opus-4-5': 'claude-opus-4-5-20251101',
 };
 
 /**
@@ -52,7 +58,15 @@ export const MODEL_PROVIDER_MAP: Record<string, string> = {
   'gemini-1.5-pro': 'gemini',
   'gemini-1.5-flash': 'gemini',
 
-  // Anthropic models (subscription)
+  // Anthropic models
+  // Claude Opus 4.5 (Nov 24, 2025 - best for coding, agents, computer use)
+  'claude-opus-4-5-20251101': 'anthropic',
+  'claude-opus-4.5': 'anthropic',
+  'opus-4.5': 'anthropic',
+  'opus4.5': 'anthropic',
+  'opus-4-5': 'anthropic',
+
+  // Legacy Anthropic models (subscription)
   'claude-opus-4': 'anthropic-subscription',
   'claude-sonnet-4.5': 'anthropic-subscription',
   'claude-sonnet-4': 'anthropic-subscription',
