@@ -120,6 +120,9 @@ class GrokInteractiveTransformer {
       timestamp: Date.now()
     };
 
+    // Log transformer activation
+    console.log(`[GROK-TRANSFORMER] Interactive mode enabled | Style: ${this.options.conversationalStyle} | Verbosity: ${this.options.verbosityLevel}`);
+
     return request;
   }
 

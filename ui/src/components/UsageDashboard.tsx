@@ -47,9 +47,14 @@ export function UsageDashboard() {
   const [dailyUsage, setDailyUsage] = useState<DailyUsageData[]>([]);
   const [dailyModelUsage, setDailyModelUsage] = useState<DailyModelUsageData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dateRange, setDateRange] = useState({
-    start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-    end: new Date()
+  const [dateRange, setDateRange] = useState(() => {
+    // Create dates at midnight local time to avoid timezone issues
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+    const start = new Date(end);
+    start.setDate(start.getDate() - 7);
+    start.setHours(0, 0, 0, 0);
+    return { start, end };
   });
   const [refreshing, setRefreshing] = useState(false);
 
@@ -207,36 +212,78 @@ export function UsageDashboard() {
             <input
               type="date"
               value={dateRange.start.toISOString().split('T')[0]}
-              onChange={(e) => setDateRange(prev => ({ ...prev, start: new Date(e.target.value) }))}
+              onChange={(e) => {
+                const date = new Date(e.target.value + 'T00:00:00');
+                setDateRange(prev => ({ ...prev, start: date }));
+              }}
               className="px-3 py-1 border rounded"
             />
             <span>{t('usage.to', 'to')}</span>
             <input
               type="date"
               value={dateRange.end.toISOString().split('T')[0]}
-              onChange={(e) => setDateRange(prev => ({ ...prev, end: new Date(e.target.value) }))}
+              onChange={(e) => {
+                const date = new Date(e.target.value + 'T23:59:59');
+                setDateRange(prev => ({ ...prev, end: date }));
+              }}
               className="px-3 py-1 border rounded"
             />
-            <div className="flex gap-2 ml-auto">
+            <div className="flex gap-2 ml-auto flex-wrap">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setDateRange({
-                  start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-                  end: new Date()
-                })}
+                onClick={() => {
+                  const end = new Date();
+                  end.setHours(23, 59, 59, 999);
+                  const start = new Date(end);
+                  start.setDate(start.getDate() - 7);
+                  start.setHours(0, 0, 0, 0);
+                  setDateRange({ start, end });
+                }}
               >
                 {t('usage.last_7_days', '7 Days')}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setDateRange({
-                  start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-                  end: new Date()
-                })}
+                onClick={() => {
+                  const end = new Date();
+                  end.setHours(23, 59, 59, 999);
+                  const start = new Date(end);
+                  start.setDate(start.getDate() - 30);
+                  start.setHours(0, 0, 0, 0);
+                  setDateRange({ start, end });
+                }}
               >
                 {t('usage.last_30_days', '30 Days')}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const end = new Date();
+                  end.setHours(23, 59, 59, 999);
+                  const start = new Date(end.getFullYear(), end.getMonth(), 1);
+                  start.setHours(0, 0, 0, 0);
+                  setDateRange({ start, end });
+                }}
+              >
+                {t('usage.this_month', 'This Month')}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const end = new Date();
+                  end.setHours(23, 59, 59, 999);
+                  const currentMonth = end.getMonth();
+                  const quarterStartMonth = Math.floor(currentMonth / 3) * 3;
+                  const start = new Date(end.getFullYear(), quarterStartMonth, 1);
+                  start.setHours(0, 0, 0, 0);
+                  setDateRange({ start, end });
+                }}
+              >
+                {t('usage.this_quarter', 'This Quarter')}
               </Button>
             </div>
           </div>

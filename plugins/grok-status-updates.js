@@ -122,6 +122,10 @@ class GrokStatusUpdatesTransformer {
       timestamp: Date.now()
     };
 
+    // Log transformer activation
+    console.log(`[GROK-TRANSFORMER] Status Updates enabled`);
+    console.log(`[GROK-TRANSFORMER] Interval: ${this.options.statusInterval}ms | Format: ${this.options.statusFormat}`);
+
     return request;
   }
 

@@ -13,6 +13,67 @@ import { version } from "../package.json";
 export const createServer = (config: any): Server => {
   const server = new Server(config);
 
+  // Grok progress monitoring hook - detects stalls in streaming responses
+  server.app.addHook('onSend', async (request: any, reply: any, payload: any) => {
+    // Only monitor Grok requests
+    const sessionId = request.body?.metadata?.user_id?.split('_session_')[1];
+    const sessionUsage = sessionId ? sessionUsageCache.get(sessionId) : null;
+    const isGrokRequest = sessionUsage?.provider === 'xai' || sessionUsage?.model?.toLowerCase().includes('grok');
+
+    if (!isGrokRequest || !payload || typeof payload.pipe !== 'function') {
+      return payload;
+    }
+
+    const grokTimeout = request.body?.metadata?.grok_timeout || 60000;
+    let lastChunkTime = Date.now();
+    let totalChunks = 0;
+    let silenceWarningIssued = false;
+
+    request.log.info(`[GROK-MONITOR] Starting progress monitor for session ${sessionId}, timeout: ${grokTimeout}ms`);
+
+    // Monitor stream for silence
+    const monitorInterval = setInterval(() => {
+      const silenceDuration = Date.now() - lastChunkTime;
+
+      if (silenceDuration > 15000 && !silenceWarningIssued) {
+        request.log.warn(`[GROK-STALL] Silent for ${(silenceDuration / 1000).toFixed(1)}s | Session: ${sessionId} | Model: ${sessionUsage?.model} | Chunks: ${totalChunks}`);
+        silenceWarningIssued = true;
+      }
+
+      // Clear interval if we've exceeded the dynamic timeout
+      if (silenceDuration > grokTimeout) {
+        request.log.error(`[GROK-TIMEOUT] Exceeded timeout of ${(grokTimeout / 1000).toFixed(1)}s | Session: ${sessionId}`);
+        clearInterval(monitorInterval);
+      }
+    }, 5000); // Check every 5 seconds
+
+    // Wrap the stream to track chunks
+    const originalStream = payload;
+    const { PassThrough } = require('stream');
+    const monitoredStream = new PassThrough();
+
+    originalStream.on('data', (chunk: any) => {
+      lastChunkTime = Date.now();
+      totalChunks++;
+      silenceWarningIssued = false; // Reset warning on new data
+      monitoredStream.write(chunk);
+    });
+
+    originalStream.on('end', () => {
+      clearInterval(monitorInterval);
+      request.log.info(`[GROK-MONITOR] Stream completed | Session: ${sessionId} | Total chunks: ${totalChunks}`);
+      monitoredStream.end();
+    });
+
+    originalStream.on('error', (err: any) => {
+      clearInterval(monitorInterval);
+      request.log.error(`[GROK-MONITOR] Stream error: ${err.message}`);
+      monitoredStream.destroy(err);
+    });
+
+    return monitoredStream;
+  });
+
   server.app.post("/v1/messages/count_tokens", async (req, reply) => {
     const {messages, tools, system} = req.body;
     const tokenCount = calculateTokenCount(messages, system, tools);

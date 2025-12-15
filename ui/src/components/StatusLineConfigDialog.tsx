@@ -861,94 +861,163 @@ export function StatusLineConfigDialog({
             {/* 中间：预览区域 */}
             <div className="border rounded-lg p-4 flex flex-col col-span-3">
               <h3 className="text-sm font-medium mb-3">{t("statusline.preview")}</h3>
-              <div
-                key={fontKey}
-                className={`rounded bg-black/90 text-white font-mono text-sm overflow-x-auto flex items-center border border-border p-3 py-5 shadow-inner overflow-hidden ${
-                  statusLineConfig.currentStyle === "powerline"
-                    ? "gap-0 h-8 p-0 items-center relative"
-                    : "h-5"
-                }`}
-                data-testid="statusline-preview"
-                style={fontStyle}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                }}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  const moduleType = e.dataTransfer.getData("moduleType");
-                  if (moduleType) {
-                    // 添加新模块
-                    const currentTheme =
-                      statusLineConfig.currentStyle as keyof StatusLineConfig;
-                    const themeConfig = statusLineConfig[currentTheme];
-                    const modules =
-                      themeConfig &&
-                      typeof themeConfig === "object" &&
-                      "modules" in themeConfig
-                        ? [
-                            ...((themeConfig as StatusLineThemeConfig)
-                              .modules || []),
-                          ]
-                        : [];
 
-                    // 根据模块类型设置默认值
-                    let newModule: StatusLineModuleConfig;
-                    switch (moduleType) {
-                      case "workDir":
-                        newModule = {
-                          type: "workDir",
-                          icon: "󰉋",
-                          text: "{{workDirName}}",
-                          color: "bright_blue",
-                        };
-                        break;
-                      case "gitBranch":
-                        newModule = {
-                          type: "gitBranch",
-                          icon: "🌿",
-                          text: "{{gitBranch}}",
-                          color: "bright_green",
-                        };
-                        break;
-                      case "model":
-                        newModule = {
-                          type: "model",
-                          icon: "🤖",
-                          text: "{{model}}",
-                          color: "bright_yellow",
-                        };
-                        break;
-                      case "usage":
-                        newModule = {
-                          type: "usage",
-                          icon: "📊",
-                          text: "{{inputTokens}} → {{outputTokens}}",
-                          color: "bright_magenta",
-                        };
-                        break;
-                      case "script":
-                        newModule = {
-                          type: "script",
-                          icon: "📜",
-                          text: "Script Module",
-                          color: "bright_cyan",
-                          scriptPath: "",
-                        };
-                        break;
-                      default:
-                        newModule = { ...DEFAULT_MODULE, type: moduleType };
+              {/* Sample Examples - Show when no modules configured */}
+              {currentModules.length === 0 && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Example: Default Theme</p>
+                    <div
+                      className="rounded bg-black/90 text-white font-mono text-sm flex items-center border border-border p-3 shadow-inner h-5"
+                      style={fontStyle}
+                    >
+                      <span className="text-blue-300">󰉋</span>
+                      <span className="text-blue-300 ml-1">claude-code-router</span>
+                      <span className="text-green-300 ml-3">🌿</span>
+                      <span className="text-green-300 ml-1">main</span>
+                      <span className="text-yellow-300 ml-3">🤖</span>
+                      <span className="text-yellow-300 ml-1">Claude Sonnet 4</span>
+                      <span className="text-purple-300 ml-3">↑</span>
+                      <span className="text-purple-300 ml-1">1.2k</span>
+                      <span className="text-purple-300 ml-2">↓</span>
+                      <span className="text-purple-300 ml-1">2.5k</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Example: Powerline Theme</p>
+                    <div
+                      className="rounded bg-black/90 text-white font-mono text-sm flex items-center border border-border shadow-inner gap-0 h-8 p-0 relative overflow-hidden"
+                      style={fontStyle}
+                    >
+                      <div className="powerline-module px-4 bg-blue-500 text-white">
+                        <div className="powerline-module-content">
+                          <span>󰉋</span>
+                          <span>claude-code-router</span>
+                        </div>
+                        <div className="powerline-separator" data-current-bg="bg_blue" />
+                      </div>
+                      <div className="powerline-module px-4 bg-green-600 text-white">
+                        <div className="powerline-module-content">
+                          <span>🌿</span>
+                          <span>main</span>
+                        </div>
+                        <div className="powerline-separator" data-current-bg="bg_green" />
+                      </div>
+                      <div className="powerline-module px-4 bg-yellow-500 text-black">
+                        <div className="powerline-module-content">
+                          <span>🤖</span>
+                          <span>Claude Sonnet 4</span>
+                        </div>
+                        <div className="powerline-separator" data-current-bg="bg_yellow" />
+                      </div>
+                      <div className="powerline-module px-4 bg-purple-500 text-white">
+                        <div className="powerline-module-content">
+                          <span>📊</span>
+                          <span>1.2k → 2.5k</span>
+                        </div>
+                        <div className="powerline-separator" style={{ display: 'none' }} />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-4 mt-4">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Build Your Own:</p>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      Drag components from the left sidebar below to create your custom StatusLine
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {currentModules.length > 0 ? (
+                <div
+                  key={fontKey}
+                  className={`rounded bg-black/90 text-white font-mono text-sm overflow-x-auto flex items-center border border-border p-3 py-5 shadow-inner overflow-hidden ${
+                    statusLineConfig.currentStyle === "powerline"
+                      ? "gap-0 h-8 p-0 items-center relative"
+                      : "h-5"
+                  }`}
+                  data-testid="statusline-preview"
+                  style={fontStyle}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const moduleType = e.dataTransfer.getData("moduleType");
+                    if (moduleType) {
+                      // 添加新模块
+                      const currentTheme =
+                        statusLineConfig.currentStyle as keyof StatusLineConfig;
+                      const themeConfig = statusLineConfig[currentTheme];
+                      const modules =
+                        themeConfig &&
+                        typeof themeConfig === "object" &&
+                        "modules" in themeConfig
+                          ? [
+                              ...((themeConfig as StatusLineThemeConfig)
+                                .modules || []),
+                            ]
+                          : [];
+
+                      // 根据模块类型设置默认值
+                      let newModule: StatusLineModuleConfig;
+                      switch (moduleType) {
+                        case "workDir":
+                          newModule = {
+                            type: "workDir",
+                            icon: "󰉋",
+                            text: "{{workDirName}}",
+                            color: "bright_blue",
+                          };
+                          break;
+                        case "gitBranch":
+                          newModule = {
+                            type: "gitBranch",
+                            icon: "🌿",
+                            text: "{{gitBranch}}",
+                            color: "bright_green",
+                          };
+                          break;
+                        case "model":
+                          newModule = {
+                            type: "model",
+                            icon: "🤖",
+                            text: "{{model}}",
+                            color: "bright_yellow",
+                          };
+                          break;
+                        case "usage":
+                          newModule = {
+                            type: "usage",
+                            icon: "📊",
+                            text: "{{inputTokens}} → {{outputTokens}}",
+                            color: "bright_magenta",
+                          };
+                          break;
+                        case "script":
+                          newModule = {
+                            type: "script",
+                            icon: "📜",
+                            text: "Script Module",
+                            color: "bright_cyan",
+                            scriptPath: "",
+                          };
+                          break;
+                        default:
+                          newModule = { ...DEFAULT_MODULE, type: moduleType };
+                      }
+
+                      modules.push(newModule);
+
+                      setStatusLineConfig((prev) => ({
+                        ...prev,
+                        [currentTheme]: { modules },
+                      }));
                     }
-
-                    modules.push(newModule);
-
-                    setStatusLineConfig((prev) => ({
-                      ...prev,
-                      [currentTheme]: { modules },
-                    }));
-                  }
-                }}
-              >
-                {currentModules.length > 0 ? (
+                  }}
+                >
                   <div className="flex items-center flex-wrap gap-0">
                     {currentModules.map((module, index) => (
                       <div
@@ -1024,7 +1093,95 @@ export function StatusLineConfigDialog({
                       </div>
                     ))}
                   </div>
-                ) : (
+                </div>
+              ) : (
+                <div
+                  key={fontKey}
+                  className={`rounded bg-black/90 text-white font-mono text-sm overflow-x-auto flex items-center border border-border p-3 py-5 shadow-inner overflow-hidden ${
+                    statusLineConfig.currentStyle === "powerline"
+                      ? "gap-0 h-8 p-0 items-center relative"
+                      : "h-5"
+                  }`}
+                  data-testid="statusline-preview"
+                  style={fontStyle}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const moduleType = e.dataTransfer.getData("moduleType");
+                    if (moduleType) {
+                      // 添加新模块
+                      const currentTheme =
+                        statusLineConfig.currentStyle as keyof StatusLineConfig;
+                      const themeConfig = statusLineConfig[currentTheme];
+                      const modules =
+                        themeConfig &&
+                        typeof themeConfig === "object" &&
+                        "modules" in themeConfig
+                          ? [
+                              ...((themeConfig as StatusLineThemeConfig)
+                                .modules || []),
+                            ]
+                          : [];
+
+                      // 根据模块类型设置默认值
+                      let newModule: StatusLineModuleConfig;
+                      switch (moduleType) {
+                        case "workDir":
+                          newModule = {
+                            type: "workDir",
+                            icon: "󰉋",
+                            text: "{{workDirName}}",
+                            color: "bright_blue",
+                          };
+                          break;
+                        case "gitBranch":
+                          newModule = {
+                            type: "gitBranch",
+                            icon: "🌿",
+                            text: "{{gitBranch}}",
+                            color: "bright_green",
+                          };
+                          break;
+                        case "model":
+                          newModule = {
+                            type: "model",
+                            icon: "🤖",
+                            text: "{{model}}",
+                            color: "bright_yellow",
+                          };
+                          break;
+                        case "usage":
+                          newModule = {
+                            type: "usage",
+                            icon: "📊",
+                            text: "{{inputTokens}} → {{outputTokens}}",
+                            color: "bright_magenta",
+                          };
+                          break;
+                        case "script":
+                          newModule = {
+                            type: "script",
+                            icon: "📜",
+                            text: "Script Module",
+                            color: "bright_cyan",
+                            scriptPath: "",
+                          };
+                          break;
+                        default:
+                          newModule = { ...DEFAULT_MODULE, type: moduleType };
+                      }
+
+                      modules.push(newModule);
+
+                      setStatusLineConfig((prev) => ({
+                        ...prev,
+                        [currentTheme]: { modules },
+                      }));
+                    }
+                  }}
+                >
                   <div className="flex flex-col items-center justify-center w-full py-4 text-center">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -1046,8 +1203,8 @@ export function StatusLineConfigDialog({
                       {t("statusline.drag_hint")}
                     </span>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
 
             {/* 右侧：属性配置 */}
@@ -1200,9 +1357,32 @@ export function StatusLineConfigDialog({
                     </Button>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center h-full min-h-[200px]">
-                    <p className="text-muted-foreground text-sm">
-                      {t("statusline.select_hint")}
+                  <div className="flex flex-col items-center justify-center h-full min-h-[200px] p-4 text-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="48"
+                      height="48"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-muted-foreground/40 mb-3"
+                    >
+                      <circle cx="12" cy="12" r="3" />
+                      <path d="M12 1v6m0 6v6" />
+                      <path d="m4.93 4.93 4.24 4.24m5.66 5.66 4.24 4.24" />
+                      <path d="M1 12h6m6 0h6" />
+                      <path d="m4.93 19.07 4.24-4.24m5.66-5.66 4.24-4.24" />
+                    </svg>
+                    <p className="text-muted-foreground text-sm font-medium mb-2">
+                      No Component Selected
+                    </p>
+                    <p className="text-muted-foreground text-xs leading-relaxed">
+                      1. Drag a component from the left<br/>
+                      2. Drop it in the preview area<br/>
+                      3. Click on it to configure
                     </p>
                   </div>
                 )}

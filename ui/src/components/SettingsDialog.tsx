@@ -15,6 +15,7 @@ import { useConfig } from "./ConfigProvider";
 import { StatusLineConfigDialog } from "./StatusLineConfigDialog";
 import { useState } from "react";
 import type { StatusLineConfig } from "@/types";
+import { Info, ChevronDown, ChevronUp } from "lucide-react";
 
 interface SettingsDialogProps {
   isOpen: boolean;
@@ -25,6 +26,7 @@ export function SettingsDialog({ isOpen, onOpenChange }: SettingsDialogProps) {
   const { t } = useTranslation();
   const { config, setConfig } = useConfig();
   const [isStatusLineConfigOpen, setIsStatusLineConfigOpen] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   if (!config) {
     return null;
@@ -64,6 +66,43 @@ export function SettingsDialog({ isOpen, onOpenChange }: SettingsDialogProps) {
           <DialogTitle>{t("toplevel.title")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 p-4 px-8 overflow-y-auto flex-1">
+          {/* Help Section */}
+          <div className="border rounded-lg bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
+            <button
+              onClick={() => setShowHelp(!showHelp)}
+              className="flex items-center justify-between w-full p-3 text-sm font-medium text-blue-900 dark:text-blue-100 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-lg transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <Info className="h-4 w-4" />
+                <span>{t('settings.help_title', 'Settings Guide')}</span>
+              </div>
+              {showHelp ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </button>
+            {showHelp && (
+              <div className="px-3 pb-3 text-xs text-blue-800 dark:text-blue-200 space-y-2">
+                <div>
+                  <strong>{t('settings.logging_help_title', 'Enable Logging:')}</strong>
+                  {' '}{t('settings.logging_help', 'When enabled, request/response logs are saved to ~/.claude-code-router/logs/. Use the Log Viewer (file icon in header) to view them.')}
+                </div>
+                <div>
+                  <strong>{t('settings.log_level_help_title', 'Log Level:')}</strong>
+                  {' '}{t('settings.log_level_help', 'Controls verbosity: fatal (critical errors only), error, warn, info (default), debug, trace (most verbose).')}
+                </div>
+                <div>
+                  <strong>{t('settings.statusline_help_title', 'StatusLine Configuration:')}</strong>
+                  {' '}{t('settings.statusline_help', 'Enables a customizable status line in the terminal. Configure modules (provider, model, cost, tokens, etc.) and choose between default or powerline styles.')}
+                </div>
+                <div>
+                  <strong>{t('settings.api_key_help_title', 'API Key:')}</strong>
+                  {' '}{t('settings.api_key_help', 'Optional authentication for the UI. Leave empty for no authentication.')}
+                </div>
+                <div>
+                  <strong>{t('settings.router_script_help_title', 'Custom Router Path:')}</strong>
+                  {' '}{t('settings.router_script_help', 'Path to a custom JavaScript file for advanced routing logic. Allows you to programmatically choose models based on request content, session, or other criteria.')}
+                </div>
+              </div>
+            )}
+          </div>
           <div className="flex items-center space-x-2">
             <Switch
               id="log"

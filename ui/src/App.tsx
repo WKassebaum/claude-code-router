@@ -274,21 +274,50 @@ function App() {
       <header className="flex h-16 items-center justify-between border-b bg-white px-6">
         <h1 className="text-xl font-semibold text-gray-800">{t('app.title')}</h1>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={() => setIsSettingsOpen(true)} className="transition-all-ease hover:scale-110">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsSettingsOpen(true)}
+            className="transition-all-ease hover:scale-110"
+            title={t('app.settings_tooltip', 'Configure logging, StatusLine, API keys, routing scripts, and server settings')}
+          >
             <Settings className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={() => setIsUsageOpen(!isUsageOpen)} className="transition-all-ease hover:scale-110">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsUsageOpen(!isUsageOpen)}
+            className="transition-all-ease hover:scale-110"
+            title={t('app.analytics_tooltip', 'View usage analytics, cost tracking, and token statistics')}
+          >
             <BarChart3 className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={() => setIsJsonEditorOpen(true)} className="transition-all-ease hover:scale-110">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsJsonEditorOpen(true)}
+            className="transition-all-ease hover:scale-110"
+            title={t('app.json_editor_tooltip', 'Edit configuration directly as JSON')}
+          >
             <FileJson className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={() => setIsLogViewerOpen(true)} className="transition-all-ease hover:scale-110">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsLogViewerOpen(true)}
+            className="transition-all-ease hover:scale-110"
+            title={t('app.logs_tooltip', 'View application logs (stored in ~/.claude-code-router/logs/)')}
+          >
             <FileText className="h-5 w-5" />
           </Button>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="ghost" size="icon" className="transition-all-ease hover:scale-110">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="transition-all-ease hover:scale-110"
+                title={t('app.language_tooltip', 'Switch between English and Chinese')}
+              >
                 <Languages className="h-5 w-5" />
               </Button>
             </PopoverTrigger>
@@ -312,12 +341,13 @@ function App() {
             </PopoverContent>
           </Popover>
           {/* 更新版本按钮 */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => checkForUpdates(true)}
             disabled={isCheckingUpdate}
             className="transition-all-ease hover:scale-110 relative"
+            title={t('app.update_tooltip', 'Check for new versions and updates')}
           >
             <div className="relative">
               <CircleArrowUp className="h-5 w-5" />
@@ -331,11 +361,20 @@ function App() {
               </div>
             )}
           </Button>
-          <Button onClick={saveConfig} variant="outline" className="transition-all-ease hover:scale-[1.02] active:scale-[0.98]">
+          <Button
+            onClick={saveConfig}
+            variant="outline"
+            className="transition-all-ease hover:scale-[1.02] active:scale-[0.98]"
+            title={t('app.save_tooltip', 'Save configuration changes')}
+          >
             <Save className="mr-2 h-4 w-4" />
             {t('app.save')}
           </Button>
-          <Button onClick={saveConfigAndRestart} className="transition-all-ease hover:scale-[1.02] active:scale-[0.98]">
+          <Button
+            onClick={saveConfigAndRestart}
+            className="transition-all-ease hover:scale-[1.02] active:scale-[0.98]"
+            title={t('app.save_restart_tooltip', 'Save configuration and restart the router service')}
+          >
             <RefreshCw className="mr-2 h-4 w-4" />
             {t('app.save_and_restart')}
           </Button>
