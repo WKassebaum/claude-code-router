@@ -14,6 +14,19 @@ export const MODEL_ALIAS_MAP: Record<string, string> = {
   'opus4.5': 'claude-opus-4-5-20251101',
   'claude-opus-4.5': 'claude-opus-4-5-20251101',
   'opus-4-5': 'claude-opus-4-5-20251101',
+
+  // GPT-5.2 aliases
+  'gpt52': 'gpt-5.2',
+  'gpt5.2': 'gpt-5.2',
+  'gpt52-pro': 'gpt-5.2-pro',
+  'gpt5.2-pro': 'gpt-5.2-pro',
+  'gpt52pro': 'gpt-5.2-pro',
+
+  // GPT-5.1 aliases
+  'gpt51': 'gpt-5.1',
+  'gpt5.1': 'gpt-5.1',
+  'gpt51-codex': 'gpt-5.1-codex',
+  'gpt5.1-codex': 'gpt-5.1-codex',
 };
 
 /**
@@ -77,11 +90,39 @@ export const MODEL_PROVIDER_MAP: Record<string, string> = {
   'claude-3-haiku': 'anthropic-subscription',
 
   // OpenAI models
+  // GPT-5.2 (Dec 11, 2025 - best for coding and agentic tasks)
+  'gpt-5.2': 'openai',
+  'gpt-5.2-pro': 'openai',
+
+  // GPT-5.1
+  'gpt-5.1': 'openai',
+  'gpt-5.1-codex': 'openai',
+  'gpt-5.1-codex-max': 'openai',
+
+  // GPT-5
+  'gpt-5': 'openai',
+  'gpt-5-mini': 'openai',
+  'gpt-5-nano': 'openai',
+  'gpt-5-pro': 'openai',
+
+  // GPT-4.1
+  'gpt-4.1': 'openai',
+  'gpt-4.1-mini': 'openai',
+  'gpt-4.1-nano': 'openai',
+  'gpt-4.1-2025-04-14': 'openai',
+
+  // GPT-4o
   'gpt-4o': 'openai',
   'gpt-4o-mini': 'openai',
   'gpt-4-turbo': 'openai',
   'gpt-4': 'openai',
   'gpt-3.5-turbo': 'openai',
+
+  // o-series reasoning models
+  'o3': 'openai',
+  'o3-mini': 'openai',
+  'o3-pro': 'openai',
+  'o4-mini': 'openai',
   'o1': 'openai',
   'o1-mini': 'openai',
   'o1-preview': 'openai',
