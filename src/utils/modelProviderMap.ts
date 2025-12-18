@@ -3,11 +3,17 @@
  * Used to resolve short/friendly names to full API model identifiers
  */
 export const MODEL_ALIAS_MAP: Record<string, string> = {
-  // Gemini 3 aliases -> gemini-3-pro-preview
+  // Gemini 3 Pro aliases -> gemini-3-pro-preview
   'gemini3': 'gemini-3-pro-preview',
   'gemini-3': 'gemini-3-pro-preview',
   'gemini3-pro': 'gemini-3-pro-preview',
   'gemini-3-pro': 'gemini-3-pro-preview',
+
+  // Gemini 3 Flash aliases -> gemini-3-flash-preview (Dec 17, 2025)
+  'gemini3-flash': 'gemini-3-flash-preview',
+  'gemini-3-flash': 'gemini-3-flash-preview',
+  'flash3': 'gemini-3-flash-preview',
+  'flash-3': 'gemini-3-flash-preview',
 
   // Claude Opus 4.5 aliases -> claude-opus-4-5-20251101
   'opus-4.5': 'claude-opus-4-5-20251101',
@@ -50,12 +56,19 @@ export const MODEL_PROVIDER_MAP: Record<string, string> = {
   'grok-vision-beta': 'xai',
 
   // Google Gemini models
-  // Gemini 3 (Nov 2025 - 1501 Elo, highest on LMArena)
+  // Gemini 3 Pro (Nov 2025 - 1501 Elo, highest on LMArena)
   'gemini-3-pro-preview': 'gemini',
   'gemini-3-pro': 'gemini',
   'gemini3-pro': 'gemini',
   'gemini-3': 'gemini',
   'gemini3': 'gemini',
+
+  // Gemini 3 Flash (Dec 17, 2025 - 78% SWE-bench, 1M context, fastest)
+  'gemini-3-flash-preview': 'gemini',
+  'gemini-3-flash': 'gemini',
+  'gemini3-flash': 'gemini',
+  'flash3': 'gemini',
+  'flash-3': 'gemini',
 
   // Gemini 2.5
   'gemini-2.5-pro': 'gemini',
