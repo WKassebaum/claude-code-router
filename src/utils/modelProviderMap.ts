@@ -15,11 +15,29 @@ export const MODEL_ALIAS_MAP: Record<string, string> = {
   'flash3': 'gemini-3-flash-preview',
   'flash-3': 'gemini-3-flash-preview',
 
+  // Claude Opus 4.6 aliases -> claude-opus-4-6
+  'opus-4.6': 'claude-opus-4-6',
+  'opus4.6': 'claude-opus-4-6',
+  'claude-opus-4.6': 'claude-opus-4-6',
+  'opus-4-6': 'claude-opus-4-6',
+
+  // Claude Sonnet 4.6 aliases -> claude-sonnet-4-6
+  'sonnet-4.6': 'claude-sonnet-4-6',
+  'sonnet4.6': 'claude-sonnet-4-6',
+  'claude-sonnet-4.6': 'claude-sonnet-4-6',
+  'sonnet-4-6': 'claude-sonnet-4-6',
+
   // Claude Opus 4.5 aliases -> claude-opus-4-5-20251101
   'opus-4.5': 'claude-opus-4-5-20251101',
   'opus4.5': 'claude-opus-4-5-20251101',
   'claude-opus-4.5': 'claude-opus-4-5-20251101',
   'opus-4-5': 'claude-opus-4-5-20251101',
+
+  // GPT-5.3 aliases
+  'gpt53': 'gpt-5.3-codex',
+  'gpt5.3': 'gpt-5.3-codex',
+  'gpt53-codex': 'gpt-5.3-codex',
+  'gpt5.3-codex': 'gpt-5.3-codex',
 
   // GPT-5.2 aliases
   'gpt52': 'gpt-5.2',
@@ -63,6 +81,9 @@ export const MODEL_PROVIDER_MAP: Record<string, string> = {
   'gemini-3': 'gemini',
   'gemini3': 'gemini',
 
+  // Gemini 3 Pro Image (multimodal image generation)
+  'gemini-3-pro-image-preview': 'gemini',
+
   // Gemini 3 Flash (Dec 17, 2025 - 78% SWE-bench, 1M context, fastest)
   'gemini-3-flash-preview': 'gemini',
   'gemini-3-flash': 'gemini',
@@ -85,7 +106,21 @@ export const MODEL_PROVIDER_MAP: Record<string, string> = {
   'gemini-1.5-flash': 'gemini',
 
   // Anthropic models
-  // Claude Opus 4.5 (Nov 24, 2025 - best for coding, agents, computer use)
+  // Claude Opus 4.6 (Feb 5, 2026 - 1M context, agent teams, best for coding)
+  'claude-opus-4-6': 'anthropic',
+  'claude-opus-4.6': 'anthropic',
+  'opus-4.6': 'anthropic',
+  'opus4.6': 'anthropic',
+  'opus-4-6': 'anthropic',
+
+  // Claude Sonnet 4.6 (Feb 2026)
+  'claude-sonnet-4-6': 'anthropic',
+  'claude-sonnet-4.6': 'anthropic',
+  'sonnet-4.6': 'anthropic',
+  'sonnet4.6': 'anthropic',
+  'sonnet-4-6': 'anthropic',
+
+  // Claude Opus 4.5 (Nov 24, 2025)
   'claude-opus-4-5-20251101': 'anthropic',
   'claude-opus-4.5': 'anthropic',
   'opus-4.5': 'anthropic',
@@ -103,6 +138,9 @@ export const MODEL_PROVIDER_MAP: Record<string, string> = {
   'claude-3-haiku': 'anthropic-subscription',
 
   // OpenAI models
+  // GPT-5.3-Codex (Feb 5, 2026 - self-improving coding agent)
+  'gpt-5.3-codex': 'openai',
+
   // GPT-5.2 (Dec 11, 2025 - best for coding and agentic tasks)
   'gpt-5.2': 'openai',
   'gpt-5.2-pro': 'openai',
