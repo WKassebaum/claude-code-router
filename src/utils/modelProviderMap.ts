@@ -3,6 +3,12 @@
  * Used to resolve short/friendly names to full API model identifiers
  */
 export const MODEL_ALIAS_MAP: Record<string, string> = {
+  // Gemini 3.1 Pro aliases -> gemini-3.1-pro-preview (Feb 19, 2026)
+  'gemini3.1': 'gemini-3.1-pro-preview',
+  'gemini-3.1': 'gemini-3.1-pro-preview',
+  'gemini3.1-pro': 'gemini-3.1-pro-preview',
+  'gemini-3.1-pro': 'gemini-3.1-pro-preview',
+
   // Gemini 3 Pro aliases -> gemini-3-pro-preview
   'gemini3': 'gemini-3-pro-preview',
   'gemini-3': 'gemini-3-pro-preview',
@@ -74,6 +80,13 @@ export const MODEL_PROVIDER_MAP: Record<string, string> = {
   'grok-vision-beta': 'xai',
 
   // Google Gemini models
+  // Gemini 3.1 Pro (Feb 19, 2026 - 77.1% ARC-AGI-2, 1M context, agentic coding)
+  'gemini-3.1-pro-preview': 'gemini',
+  'gemini-3.1-pro': 'gemini',
+  'gemini3.1-pro': 'gemini',
+  'gemini-3.1': 'gemini',
+  'gemini3.1': 'gemini',
+
   // Gemini 3 Pro (Nov 2025 - 1501 Elo, highest on LMArena)
   'gemini-3-pro-preview': 'gemini',
   'gemini-3-pro': 'gemini',
