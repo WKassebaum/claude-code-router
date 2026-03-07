@@ -191,6 +191,58 @@ const selectOptimalGrokModel = (
 };
 
 /**
+ * Intelligent OpenAI model selection — promotes to gpt-5.4-pro for complex
+ * coding, agentic, and reasoning tasks; stays on base model for simple queries
+ */
+const selectOptimalOpenAIModel = (
+  req: any,
+  tokenCount: number,
+  defaultModel: string,
+  config: any
+): string => {
+  const messages = req.body.messages || [];
+  const tools = req.body.tools || [];
+  const lastMessage = messages[messages.length - 1];
+  const userContent = typeof lastMessage?.content === 'string'
+    ? lastMessage.content.toLowerCase()
+    : '';
+
+  const [provider, currentModel] = defaultModel.includes(',')
+    ? defaultModel.split(',')
+    : ['openai', defaultModel];
+
+  // Only apply to gpt-5.4 base — promotes to pro when warranted
+  if (!currentModel.includes('gpt-5.4') || currentModel.includes('pro')) {
+    return defaultModel;
+  }
+
+  const openaiProvider = config.Providers?.find((p: any) => p.name === 'openai');
+  const availableModels = openaiProvider?.models || [];
+
+  const tryPro = (): string => {
+    if (availableModels.includes('gpt-5.4-pro')) {
+      req.log.info(`[OPENAI-AUTO-ROUTER] Upgrading to gpt-5.4-pro`);
+      return `${provider},gpt-5.4-pro`;
+    }
+    return defaultModel;
+  };
+
+  // Complex coding / agentic task indicators → pro
+  const isComplexCoding = /architect|refactor|implement.*system|design.*api|write.*service|build.*agent|multi.?step|pipeline/.test(userContent);
+  const isDebugging = /debug|investigate|root cause|why.*fail|trace|diagnose/.test(userContent);
+  const isSecurityOrAudit = /security|audit|vulnerabilit|pen.?test|auth/.test(userContent);
+  const isLargeContext = tokenCount > 40000 || tools.length > 10;
+  const hasMultipleTools = tools.length > 5;
+
+  if (isComplexCoding || isDebugging || isSecurityOrAudit || isLargeContext || hasMultipleTools) {
+    req.log.info(`[OPENAI-AUTO-ROUTER] Complex task detected (tokens=${tokenCount}, tools=${tools.length}) → promoting to pro`);
+    return tryPro();
+  }
+
+  return defaultModel;
+};
+
+/**
  * Calculate dynamic timeout for Grok requests based on model and complexity
  */
 const calculateGrokTimeout = (
@@ -335,13 +387,22 @@ const getUseModel = async (
     return Router.think;
   }
 
-  // Grok-specific intelligent routing
+  // Intelligent model routing based on provider
   const defaultModel = Router!.default;
+
   if (defaultModel && (defaultModel.includes('grok') || defaultModel.includes('xai,'))) {
     const grokVariant = selectOptimalGrokModel(req, tokenCount, defaultModel, config);
     if (grokVariant !== defaultModel) {
       req.log.info(`[GROK-AUTO-ROUTER] Switching from ${defaultModel} to ${grokVariant} based on request analysis`);
       return grokVariant;
+    }
+  }
+
+  if (defaultModel && (defaultModel.includes('gpt-5.4') || defaultModel.includes('openai,gpt-5.4'))) {
+    const openaiVariant = selectOptimalOpenAIModel(req, tokenCount, defaultModel, config);
+    if (openaiVariant !== defaultModel) {
+      req.log.info(`[OPENAI-AUTO-ROUTER] Switching from ${defaultModel} to ${openaiVariant} based on request analysis`);
+      return openaiVariant;
     }
   }
 

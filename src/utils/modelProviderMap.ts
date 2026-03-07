@@ -39,6 +39,13 @@ export const MODEL_ALIAS_MAP: Record<string, string> = {
   'claude-opus-4.5': 'claude-opus-4-5-20251101',
   'opus-4-5': 'claude-opus-4-5-20251101',
 
+  // GPT-5.4 aliases
+  'gpt54': 'gpt-5.4',
+  'gpt5.4': 'gpt-5.4',
+  'gpt54-pro': 'gpt-5.4-pro',
+  'gpt5.4-pro': 'gpt-5.4-pro',
+  'gpt54pro': 'gpt-5.4-pro',
+
   // GPT-5.3 aliases
   'gpt53': 'gpt-5.3-codex',
   'gpt5.3': 'gpt-5.3-codex',
@@ -151,6 +158,11 @@ export const MODEL_PROVIDER_MAP: Record<string, string> = {
   'claude-3-haiku': 'anthropic-subscription',
 
   // OpenAI models
+  // GPT-5.4 (Mar 5, 2026 - 1M context, native computer use, best coding+reasoning)
+  'gpt-5.4': 'openai',
+  'gpt-5.4-pro': 'openai',
+  'gpt-5.4-pro-2026-03-05': 'openai',
+
   // GPT-5.3-Codex (Feb 5, 2026 - self-improving coding agent)
   'gpt-5.3-codex': 'openai',
 
