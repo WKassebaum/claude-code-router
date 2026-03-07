@@ -104,8 +104,22 @@ try {
     `);
 
     const defaultPricing = [
+      // OpenAI - GPT-5.4 Series (Mar 2026)
+      ['openai', 'gpt-5.4', 0.0025, 0.015, 0.00125, 0.0075],
+      ['openai', 'gpt-5.4-pro', 0.030, 0.120, 0.015, 0.060],
+      ['openai', 'gpt-5.4-pro-2026-03-05', 0.030, 0.120, 0.015, 0.060],
+      // OpenAI - GPT-5.3 Series (Feb 2026)
+      ['openai', 'gpt-5.3-codex', 0.002, 0.010, 0.001, 0.005],
+      // OpenAI - GPT-5.2 Series (Dec 2025)
+      ['openai', 'gpt-5.2', 0.00125, 0.005, 0.000625, 0.0025],
+      ['openai', 'gpt-5.2-pro', 0.0025, 0.010, 0.00125, 0.005],
+      // OpenAI - GPT-5.1 Series (2025)
+      ['openai', 'gpt-5.1', 0.001, 0.004, 0.0005, 0.002],
+      ['openai', 'gpt-5.1-codex', 0.001, 0.004, 0.0005, 0.002],
+      ['openai', 'gpt-5.1-codex-max', 0.002, 0.008, 0.001, 0.004],
       // OpenAI - GPT-5 Series (2025)
       ['openai', 'gpt-5', 0.04, 0.08, 0.02, 0.04],
+      ['openai', 'gpt-5-pro', 0.04, 0.08, 0.02, 0.04],
       ['openai', 'gpt-5-mini', 0.01, 0.03, 0.005, 0.015],
       ['openai', 'gpt-5-nano', 0.001, 0.003, 0.0005, 0.0015],
       // OpenAI - GPT-4.1 Series (2025)
@@ -124,6 +138,11 @@ try {
       ['openai', 'gpt-4', 0.03, 0.06, 0.015, 0.03],
       ['openai', 'gpt-3.5-turbo', 0.0005, 0.0015, 0.00025, 0.00075],
 
+      // Anthropic - Claude 4.6 Series (Feb 2026)
+      ['anthropic', 'claude-opus-4-6', 0.005, 0.025, 0.0025, 0.0125],
+      ['anthropic', 'claude-sonnet-4-6', 0.003, 0.015, 0.0015, 0.0075],
+      // Anthropic - Claude 4.5 Series (Nov 2025)
+      ['anthropic', 'claude-opus-4-5-20251101', 0.015, 0.075, 0.0075, 0.0375],
       // Anthropic - Claude 4.x Series (2025)
       ['anthropic', 'claude-sonnet-4-5-20250929', 0.003, 0.015, 0.0015, 0.0075],
       ['anthropic', 'claude-sonnet-4-5', 0.003, 0.015, 0.0015, 0.0075],
@@ -156,7 +175,12 @@ try {
       ['xai', 'grok-beta', 0.0005, 0.0015, 0.00025, 0.00075],
       ['xai', 'grok-2', 0.0005, 0.0015, 0.00025, 0.00075],
 
-      // Google - Gemini Models
+      // Google - Gemini 3.x Series (2026)
+      ['gemini', 'gemini-3.1-pro-preview', 0.002, 0.012, 0.0005, 0.003],
+      ['gemini', 'gemini-3-pro-preview', 0.002, 0.012, 0.0005, 0.003],
+      ['gemini', 'gemini-3-flash-preview', 0.000075, 0.0003, 0.0000375, 0.00015],
+      ['gemini', 'gemini-3-pro-image-preview', 0.002, 0.012, 0.0005, 0.003],
+      // Google - Gemini 2.x Series (2025)
       ['gemini', 'gemini-2.5-pro', 0.00125, 0.005, 0.000625, 0.0025],
       ['gemini', 'gemini-2.5-flash', 0.000075, 0.0003, 0.0000375, 0.00015],
       ['gemini', 'gemini-2.0-flash', 0.000075, 0.0003, 0.0000375, 0.00015],
@@ -515,8 +539,22 @@ export async function fetchModelPricing(provider: string, model: string): Promis
     if (provider === 'openai') {
       type PricingType = { input: number; output: number; cached_input: number; cached_output: number };
       const openaiPricing: Record<string, PricingType> = {
+        // GPT-5.4 Series (Mar 2026)
+        'gpt-5.4': { input: 0.0025, output: 0.015, cached_input: 0.00125, cached_output: 0.0075 },
+        'gpt-5.4-pro': { input: 0.030, output: 0.120, cached_input: 0.015, cached_output: 0.060 },
+        'gpt-5.4-pro-2026-03-05': { input: 0.030, output: 0.120, cached_input: 0.015, cached_output: 0.060 },
+        // GPT-5.3 Series (Feb 2026)
+        'gpt-5.3-codex': { input: 0.002, output: 0.010, cached_input: 0.001, cached_output: 0.005 },
+        // GPT-5.2 Series (Dec 2025)
+        'gpt-5.2': { input: 0.00125, output: 0.005, cached_input: 0.000625, cached_output: 0.0025 },
+        'gpt-5.2-pro': { input: 0.0025, output: 0.010, cached_input: 0.00125, cached_output: 0.005 },
+        // GPT-5.1 Series (2025)
+        'gpt-5.1': { input: 0.001, output: 0.004, cached_input: 0.0005, cached_output: 0.002 },
+        'gpt-5.1-codex': { input: 0.001, output: 0.004, cached_input: 0.0005, cached_output: 0.002 },
+        'gpt-5.1-codex-max': { input: 0.002, output: 0.008, cached_input: 0.001, cached_output: 0.004 },
         // GPT-5 Series (2025)
         'gpt-5': { input: 0.04, output: 0.08, cached_input: 0.02, cached_output: 0.04 },
+        'gpt-5-pro': { input: 0.04, output: 0.08, cached_input: 0.02, cached_output: 0.04 },
         'gpt-5-mini': { input: 0.01, output: 0.03, cached_input: 0.005, cached_output: 0.015 },
         'gpt-5-nano': { input: 0.001, output: 0.003, cached_input: 0.0005, cached_output: 0.0015 },
         // GPT-4.1 Series (2025)
@@ -540,6 +578,11 @@ export async function fetchModelPricing(provider: string, model: string): Promis
     } else if (provider === 'anthropic') {
       type PricingType = { input: number; output: number; cached_input: number; cached_output: number };
       const anthropicPricing: Record<string, PricingType> = {
+        // Claude 4.6 Series (Feb 2026)
+        'claude-opus-4-6': { input: 0.005, output: 0.025, cached_input: 0.0025, cached_output: 0.0125 },
+        'claude-sonnet-4-6': { input: 0.003, output: 0.015, cached_input: 0.0015, cached_output: 0.0075 },
+        // Claude 4.5 Series (Nov 2025)
+        'claude-opus-4-5-20251101': { input: 0.015, output: 0.075, cached_input: 0.0075, cached_output: 0.0375 },
         // Claude 4.x Series (2025)
         'claude-sonnet-4-5-20250929': { input: 0.003, output: 0.015, cached_input: 0.0015, cached_output: 0.0075 },
         'claude-sonnet-4-5': { input: 0.003, output: 0.015, cached_input: 0.0015, cached_output: 0.0075 },
@@ -562,6 +605,24 @@ export async function fetchModelPricing(provider: string, model: string): Promis
       };
 
       pricingData = anthropicPricing[model] || null;
+    } else if (provider === 'gemini') {
+      type PricingType = { input: number; output: number; cached_input: number; cached_output: number };
+      const geminiPricing: Record<string, PricingType> = {
+        // Gemini 3.x Series (2026)
+        'gemini-3.1-pro-preview': { input: 0.002, output: 0.012, cached_input: 0.0005, cached_output: 0.003 },
+        'gemini-3-pro-preview': { input: 0.002, output: 0.012, cached_input: 0.0005, cached_output: 0.003 },
+        'gemini-3-pro-image-preview': { input: 0.002, output: 0.012, cached_input: 0.0005, cached_output: 0.003 },
+        'gemini-3-flash-preview': { input: 0.000075, output: 0.0003, cached_input: 0.0000375, cached_output: 0.00015 },
+        // Gemini 2.x Series (2025)
+        'gemini-2.5-pro': { input: 0.00125, output: 0.005, cached_input: 0.000625, cached_output: 0.0025 },
+        'gemini-2.5-flash': { input: 0.000075, output: 0.0003, cached_input: 0.0000375, cached_output: 0.00015 },
+        'gemini-2.0-flash': { input: 0.000075, output: 0.0003, cached_input: 0.0000375, cached_output: 0.00015 },
+        'gemini-1.5-pro': { input: 0.00125, output: 0.005, cached_input: 0.000625, cached_output: 0.0025 },
+        'gemini-1.5-flash': { input: 0.000075, output: 0.0003, cached_input: 0.0000375, cached_output: 0.00015 },
+        'gemini-2.0-flash-exp': { input: 0.0, output: 0.0, cached_input: 0.0, cached_output: 0.0 },
+      };
+
+      pricingData = geminiPricing[model] || null;
     } // Add more providers as needed
 
     if (pricingData) {
