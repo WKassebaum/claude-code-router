@@ -163,7 +163,11 @@ try {
       ['anthropic', 'claude-3.5-haiku', 0.00025, 0.00125, 0.000125, 0.000625],
       ['anthropic', 'claude-3-haiku-20240307', 0.00025, 0.00125, 0.000125, 0.000625],
 
-      // xAI - Grok Models
+      // xAI - Grok 4.20 Beta (Mar 2026 - $2/$6 per MTok)
+      ['xai', 'grok-4.20-multi-agent-beta-0309', 0.002, 0.006, 0.0002, 0.003],
+      ['xai', 'grok-4.20-beta-0309-reasoning', 0.002, 0.006, 0.0002, 0.003],
+      ['xai', 'grok-4.20-beta-0309-non-reasoning', 0.002, 0.006, 0.0002, 0.003],
+      // xAI - Grok 4.x Models
       ['xai', 'grok-4-fast', 0.0002, 0.0005, 0.0001, 0.00025],
       ['xai', 'grok-4-fast-reasoning', 0.0003, 0.0008, 0.00015, 0.0004],
       ['xai', 'grok-4-fast-non-reasoning', 0.0002, 0.0005, 0.0001, 0.00025],
@@ -623,6 +627,25 @@ export async function fetchModelPricing(provider: string, model: string): Promis
       };
 
       pricingData = geminiPricing[model] || null;
+    } else if (provider === 'xai') {
+      type PricingType = { input: number; output: number; cached_input: number; cached_output: number };
+      const xaiPricing: Record<string, PricingType> = {
+        // Grok 4.20 Beta (Mar 2026 - $2/$6 per MTok)
+        'grok-4.20-multi-agent-beta-0309': { input: 0.002, output: 0.006, cached_input: 0.0002, cached_output: 0.003 },
+        'grok-4.20-beta-0309-reasoning': { input: 0.002, output: 0.006, cached_input: 0.0002, cached_output: 0.003 },
+        'grok-4.20-beta-0309-non-reasoning': { input: 0.002, output: 0.006, cached_input: 0.0002, cached_output: 0.003 },
+        // Grok 4.x
+        'grok-4-fast': { input: 0.0002, output: 0.0005, cached_input: 0.0001, cached_output: 0.00025 },
+        'grok-4-fast-reasoning': { input: 0.0003, output: 0.0008, cached_input: 0.00015, cached_output: 0.0004 },
+        'grok-4-fast-non-reasoning': { input: 0.0002, output: 0.0005, cached_input: 0.0001, cached_output: 0.00025 },
+        'grok-fast-code-1': { input: 0.0002, output: 0.0005, cached_input: 0.0001, cached_output: 0.00025 },
+        'grok-4-0709': { input: 0.0005, output: 0.0015, cached_input: 0.00025, cached_output: 0.00075 },
+        'grok-4-heavy': { input: 0.001, output: 0.003, cached_input: 0.0005, cached_output: 0.0015 },
+        'grok-3': { input: 0.0005, output: 0.0015, cached_input: 0.00025, cached_output: 0.00075 },
+        'grok-3-fast': { input: 0.0002, output: 0.0005, cached_input: 0.0001, cached_output: 0.00025 },
+      };
+
+      pricingData = xaiPricing[model] || null;
     } // Add more providers as needed
 
     if (pricingData) {

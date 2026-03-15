@@ -64,6 +64,14 @@ export const MODEL_ALIAS_MAP: Record<string, string> = {
   'gpt5.1': 'gpt-5.1',
   'gpt51-codex': 'gpt-5.1-codex',
   'gpt5.1-codex': 'gpt-5.1-codex',
+
+  // Grok 4.20 aliases
+  'grok-4.20': 'grok-4.20-beta-0309-reasoning',
+  'grok-420': 'grok-4.20-beta-0309-reasoning',
+  'grok-4.20-reasoning': 'grok-4.20-beta-0309-reasoning',
+  'grok-4.20-non-reasoning': 'grok-4.20-beta-0309-non-reasoning',
+  'grok-4.20-multi-agent': 'grok-4.20-multi-agent-beta-0309',
+  'grok-4.20-agent': 'grok-4.20-multi-agent-beta-0309',
 };
 
 /**
@@ -72,6 +80,11 @@ export const MODEL_ALIAS_MAP: Record<string, string> = {
  */
 export const MODEL_PROVIDER_MAP: Record<string, string> = {
   // XAI / Grok models
+  // Grok 4.20 Beta (Mar 2026 - 2M context, multi-agent, reasoning)
+  'grok-4.20-multi-agent-beta-0309': 'xai',
+  'grok-4.20-beta-0309-reasoning': 'xai',
+  'grok-4.20-beta-0309-non-reasoning': 'xai',
+
   // Grok 4.1 Fast (Nov 19, 2025 - 2M context)
   'grok-4-1-fast-reasoning': 'xai',
   'grok-4-1-fast-non-reasoning': 'xai',

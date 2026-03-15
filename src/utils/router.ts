@@ -161,29 +161,29 @@ const selectOptimalGrokModel = (
 
   req.log.info(`[GROK-AUTO-ROUTER] Analysis: debug=${isDebugging}, reasoning=${isComplexReasoning}, codegen=${isCodeGeneration}, large=${isLargeCodebase}, fastEdit=${isFastEdit}`);
 
-  // Priority 1: Fast code edits -> grok-fast-code-1
+  // Priority 1: Multi-agent or comprehensive tasks -> grok-4.20-multi-agent-beta-0309
+  if ((isLargeCodebase || isComprehensiveTask) && provider === 'xai') {
+    return tryModel(`${provider},grok-4.20-multi-agent-beta-0309`, `${provider},grok-4-heavy`);
+  }
+
+  // Priority 2: Debugging or complex reasoning -> grok-4.20-beta-0309-reasoning
+  if ((isDebugging || isComplexReasoning || hasMultipleSteps) && provider === 'xai') {
+    return tryModel(`${provider},grok-4.20-beta-0309-reasoning`, `${provider},grok-4-fast-reasoning`);
+  }
+
+  // Priority 3: Fast code edits -> grok-fast-code-1
   if (isFastEdit && provider === 'xai') {
     return tryModel(`${provider},grok-fast-code-1`, `${provider},grok-4-fast`);
   }
 
-  // Priority 2: Large codebase or comprehensive tasks -> grok-4-heavy
-  if ((isLargeCodebase || isComprehensiveTask) && provider === 'xai') {
-    return tryModel(`${provider},grok-4-heavy`, `${provider},grok-4-0709`);
-  }
-
-  // Priority 3: Debugging or complex reasoning -> Try grok-4.1-thinking first, fallback to grok-4-fast-reasoning
-  if ((isDebugging || isComplexReasoning || hasMultipleSteps) && provider === 'xai') {
-    return tryModel(`${provider},grok-4.1-thinking`, `${provider},grok-4-fast-reasoning`);
-  }
-
-  // Priority 4: Pure code generation without reasoning -> grok-4-fast-non-reasoning
+  // Priority 4: Pure code generation without reasoning -> grok-4.20-beta-0309-non-reasoning
   if (isCodeGeneration && !isDebugging && !isComplexReasoning && provider === 'xai') {
-    return tryModel(`${provider},grok-4-fast-non-reasoning`, `${provider},grok-4-fast`);
+    return tryModel(`${provider},grok-4.20-beta-0309-non-reasoning`, `${provider},grok-4-fast-non-reasoning`);
   }
 
-  // Priority 5: High quality complex tasks -> grok-4-0709
+  // Priority 5: High quality complex tasks -> grok-4.20-beta-0309-reasoning
   if ((tokenCount > 30000 || tools.length > 10) && (isComplexReasoning || hasMultipleSteps) && provider === 'xai') {
-    return tryModel(`${provider},grok-4-0709`, `${provider},grok-4-fast`);
+    return tryModel(`${provider},grok-4.20-beta-0309-reasoning`, `${provider},grok-4-0709`);
   }
 
   // Default: keep current model
@@ -252,6 +252,11 @@ const calculateGrokTimeout = (
 ): number => {
   // Base timeouts by model type (in milliseconds)
   const baseTimeouts: Record<string, number> = {
+    // Grok 4.20 Beta (Mar 2026 - 2M context)
+    'grok-4.20-multi-agent-beta-0309': 180000,   // 3 minutes - multi-agent orchestration
+    'grok-4.20-beta-0309-reasoning': 120000,      // 2 minutes - reasoning mode
+    'grok-4.20-beta-0309-non-reasoning': 60000,   // 1 minute - fast non-reasoning
+    // Grok 4.x legacy
     'grok-4-heavy': 180000,        // 3 minutes - comprehensive analysis
     'grok-4.1-thinking': 90000,    // 1.5 minutes - Grok 4.1 thinking mode (Nov 2025)
     'grok-4-1-thinking': 90000,    // 1.5 minutes - Alt naming
