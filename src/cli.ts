@@ -141,6 +141,7 @@ async function main() {
         );
         cleanupPidFile();
       }
+      process.exit(0);
       break;
     case "restart":
       try {
